@@ -11,6 +11,10 @@
 #include "MessageQueueManager.h"
 
 namespace messaging {
+    /**
+     * interface all publisher should inherent
+     * @tparam T type of message content this publisher is publishing
+     */
     template<typename T>
     class IPublisher {
     public:
@@ -29,6 +33,10 @@ namespace messaging {
         virtual void publish(IMessage<T>&& message, Topic&& topic) noexcept = 0;
     };
 
+    /**
+     * interface all receiver should inherent
+     * @tparam T type of message content this receiver is receiving
+     */
     template<typename T>
     class IRetriever{
     public:

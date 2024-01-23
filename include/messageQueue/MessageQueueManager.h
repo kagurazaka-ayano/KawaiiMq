@@ -8,7 +8,7 @@
 #ifndef MESSAGEQUEUE_MESSAGEQUEUEMANAGER_H
 #define MESSAGEQUEUE_MESSAGEQUEUEMANAGER_H
 
-#include "Queue.h"
+#include "Queue.hpp"
 #include "Topic.h"
 #include <mutex>
 #include <iostream>
@@ -17,7 +17,7 @@ namespace messaging {
 
     /**
      * a singleton for the given message type
-     * @tparam T message type
+     * @tparam T type of content this message contain
      */
     template<typename T>
     class MessageQueueManager {

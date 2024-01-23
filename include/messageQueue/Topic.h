@@ -10,22 +10,24 @@
 
 #include <string>
 #include <vector>
-#include "Queue.h"
+#include "Queue.hpp"
 
 namespace messaging{
 
     class Topic {
     public:
-        explicit Topic(std::string  name);
+        explicit Topic(std::string name);
         Topic(const Topic& other);
         Topic(Topic&& other) noexcept;
+        /**
+         * get topic name
+         * @return topic name
+         */
         [[nodiscard]] std::string getName() const;
         bool operator==(const Topic& other) const;
     private:
         std::string name;
     };
-
-
 }
 template<>
 struct std::hash<messaging::Topic>{

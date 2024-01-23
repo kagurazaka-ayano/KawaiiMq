@@ -11,11 +11,12 @@
 
 namespace messaging {
     /**
-     * Interface that all messages should composite, all functions are virtual
+     * Interface that all messages should composite
      * @tparam T type of content this message contains
      */
     template<typename T>
     class IMessage {
+    public:
         /**
          * get content of the message
          * @return content
@@ -27,6 +28,12 @@ namespace messaging {
          * @param content given content
          */
         virtual void setContent(const T& content) = 0;
+
+        /**
+         * set content of the message
+         * @param content given content
+         */
+        virtual void setContent(T&& content) noexcept = 0;
     };
 }
 
