@@ -15,6 +15,7 @@
 *.so
 *.dylib
 *.dll
+!dependencies/lib/gtest/darwin/*.dylib
 
 # Fortran module files
 *.mod

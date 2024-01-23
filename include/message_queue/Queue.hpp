@@ -14,11 +14,12 @@
 #include <utility>
 #include "IMessage.h"
 #include "utility.hpp"
-
 /**
  * messaging namespace
  */
 namespace messaging {
+
+
     using mtxguard = std::lock_guard<std::shared_mutex>;
     using mtxshared = std::shared_lock<std::shared_mutex>;
     using mtxunique = std::unique_lock<std::shared_mutex>;
@@ -29,6 +30,7 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     class Queue {
+
     public:
 
         Queue() = default;
@@ -74,6 +76,10 @@ namespace messaging {
          */
         std::size_t size() const noexcept;
 
+        void sync_lock();
+
+        void sync_unlock();
+
         /**
          * Check if queue is empty
          * @return false if not empty, true if empty
@@ -81,11 +87,24 @@ namespace messaging {
         [[nodiscard]] bool empty() const noexcept;
 
     private:
-        mutable std::shared_mutex mtx;
+        static std::shared_mutex mtx;
         std::queue<T> queue;
         mutable std::condition_variable_any cond;
         std::string name;
     };
+
+    template<typename T>
+    requires DerivedFromTemplate<IMessage, T>void Queue<T>::sync_unlock() {
+        mtx.unlock();
+    }
+    template<typename T>
+    requires DerivedFromTemplate<IMessage, T>void Queue<T>::sync_lock() {
+        mtx.lock();
+    }
+
+    template<typename T>
+    requires DerivedFromTemplate<IMessage, T>
+    std::shared_mutex Queue<T>::mtx;
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>

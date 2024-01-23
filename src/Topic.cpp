@@ -6,7 +6,6 @@
 */
 
 #include "Topic.h"
-
 #include <utility>
 
 
