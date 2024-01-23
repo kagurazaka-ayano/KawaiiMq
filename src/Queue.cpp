@@ -36,6 +36,30 @@ namespace messaging {
         return queue.empty();
     }
 
+    Queue::Queue(const Queue &other): queue(other.queue) {
+    }
+
+    Queue::Queue(Queue &&other) noexcept: queue(std::move(other.queue)) {
+    }
+
+    bool Queue::operator==(const Queue &other) {
+        return this == &other;
+    }
+
+    Queue &Queue::operator=(const Queue &other) {
+        if(this != &other) {
+            queue = other.queue;
+        }
+        return *this;
+    }
+
+    Queue &Queue::operator=(Queue &&other) noexcept {
+        if(this != &other) {
+            queue = std::move(other.queue);
+        }
+        return *this;
+    }
+
     template<class... Args>
     void Queue::emplace(Args &&... args) {
         mtxguard lock(mtx);

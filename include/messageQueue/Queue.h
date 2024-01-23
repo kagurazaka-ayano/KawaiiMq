@@ -27,7 +27,17 @@ namespace messaging {
         /**
          * Constructor
          */
-        Queue() = default;
+        Queue(const std::string& name);
+
+        Queue(const Queue& other);
+
+        Queue(Queue&& other) noexcept;
+
+        bool operator==(const Queue& other);
+
+        Queue& operator=(const Queue& other);
+
+        Queue& operator=(Queue&& other) noexcept;
 
         /**
          * Wait for the result when called. Will return a std::shared_ptr containing message and pop the message if notified.
@@ -69,7 +79,8 @@ namespace messaging {
     private:
         mutable std::shared_mutex mtx;
         std::queue<IMessage> queue;
-        std::condition_variable_any cond;
+        mutable std::condition_variable_any cond;
+        std::string name;
     };
 }
 
