@@ -33,11 +33,13 @@ namespace messaging {
 
     template<typename T>
     std::size_t Queue<T>::size() const noexcept {
+        mtxshared lock(mtx);
         return queue.size();
     }
 
     template<typename T>
     bool Queue<T>::empty() const noexcept {
+        mtxshared lock(mtx);
         return queue.empty();
     }
 
@@ -51,29 +53,25 @@ namespace messaging {
 
     template<typename T>
     bool Queue<T>::operator==(const Queue<T> &other) {
+        mtxshared lock(mtx);
         return this == &other;
     }
 
     template<typename T>
     Queue<T> &Queue<T>::operator=(const Queue<T> &other) {
+        mtxguard lock(mtx);
         if(this != &other) {
             queue = other.queue;
         }
         return *this;
     }
 
+    template<typename T>
     Queue<T> &Queue<T>::operator=(Queue<T> &&other) noexcept {
         if(this != &other) {
             queue = std::move(other.queue);
         }
         return *this;
-    }
-
-    template<class... Args>
-    void Queue<T>::emplace(Args &&... args) {
-        mtxguard lock(mtx);
-        queue.emplace(args...);
-        cond.notify_one();
     }
 }
 

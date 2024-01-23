@@ -63,14 +63,6 @@ namespace messaging {
         void push(IMessage<T>&& msg) noexcept;
 
         /**
-         * Given all the params, construct an object in place and insert it
-         * @param args Constructor
-         * @tparam T message content type
-         */
-        template<class... Args>
-        void emplace(Args&&... args);
-
-        /**
          * Size of the queue
          * @return size of the queue
          */
