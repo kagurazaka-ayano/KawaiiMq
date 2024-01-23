@@ -21,45 +21,51 @@ namespace messaging {
     using mtxunique = std::unique_lock<std::shared_mutex>;
     /**
      * A message queue that supports basic queue operation, and notification-based value fetch
+     * @tparam T message content type
      */
+    template<typename T>
     class Queue {
     public:
-        /**
-         * Constructor
-         */
+
         Queue(const std::string& name);
 
-        Queue(const Queue& other);
+        Queue(const Queue<T>& other);
 
-        Queue(Queue&& other) noexcept;
+        Queue(Queue<T>&& other) noexcept;
 
-        bool operator==(const Queue& other);
+        bool operator==(const Queue<T>& other);
 
-        Queue& operator=(const Queue& other);
+        Queue<T>& operator=(const Queue<T>& other);
 
-        Queue& operator=(Queue&& other) noexcept;
-
-        /**
-         * Wait for the result when called. Will return a std::shared_ptr containing message and pop the message if notified.
-         * @return
-         */
-        std::shared_ptr<IMessage> wait();
+        Queue<T>& operator=(Queue<T>&& other) noexcept;
 
         /**
-         * Push a message to the queue
-         * @param msg message pushing in
+         * Wait for the result when called. Will pop the message if notified.
+         * @return a std::shared_ptr containing message
+         * @tparam T message content type
          */
-        void push(const IMessage& msg);
+
+        std::shared_ptr<IMessage<T>> wait();
 
         /**
          * Push a message to the queue
          * @param msg message pushing in
+         * @tparam T message content type
          */
-        void push(IMessage&& msg) noexcept;
+        void push(const IMessage<T>& msg);
+
+        /**
+         * Push a message to the queue
+         * @param msg message pushing in
+         * @tparam T message content type
+         */
+
+        void push(IMessage<T>&& msg) noexcept;
 
         /**
          * Given all the params, construct an object in place and insert it
          * @param args Constructor
+         * @tparam T message content type
          */
         template<class... Args>
         void emplace(Args&&... args);
@@ -78,7 +84,7 @@ namespace messaging {
 
     private:
         mutable std::shared_mutex mtx;
-        std::queue<IMessage> queue;
+        std::queue<IMessage<T>> queue;
         mutable std::condition_variable_any cond;
         std::string name;
     };

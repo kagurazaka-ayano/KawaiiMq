@@ -20,9 +20,7 @@ namespace messaging{
         Topic(const Topic& other);
         Topic(Topic&& other) noexcept;
         [[nodiscard]] std::string getName() const;
-        bool operator==(const Topic& other) const {
-            return name == other.getName();
-        }
+        bool operator==(const Topic& other) const;
     private:
         std::string name;
     };
@@ -34,8 +32,6 @@ struct std::hash<messaging::Topic>{
     std::size_t operator()(const messaging::Topic& topic) const;
 };
 
-std::size_t std::hash<messaging::Topic>::operator()(const messaging::Topic &topic) const  {
-    return (std::hash<string>()(topic.getName()) << 1) ^ (std::hash<string>()(topic.getName()) >> 1);
-}
+
 
 #endif //MESSAGEQUEUE_TOPIC_H

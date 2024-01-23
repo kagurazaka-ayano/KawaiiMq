@@ -28,4 +28,12 @@ namespace messaging{
     std::string Topic::getName() const {
         return name;
     }
+
+    bool Topic::operator==(const Topic &other) const {
+        return name == other.getName();
+    }
+
+}
+std::size_t std::hash<messaging::Topic>::operator()(const messaging::Topic &topic) const  {
+    return (std::hash<string>()(topic.getName()) << 1) ^ (std::hash<string>()(topic.getName()) >> 1);
 }
