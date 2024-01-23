@@ -25,6 +25,7 @@
 *.la
 *.a
 *.lib
+!dependencies/lib/gtest/darwin/*.a
 
 # Executables
 *.exe
