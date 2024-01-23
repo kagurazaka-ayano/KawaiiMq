@@ -8,7 +8,7 @@
 #ifndef MESSAGEQUEUE_ICLIENT_H
 #define MESSAGEQUEUE_ICLIENT_H
 
-#include "MessageQueueManager.h"
+#include "MessageQueueManager.hpp"
 
 namespace messaging {
     /**

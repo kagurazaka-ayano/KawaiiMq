@@ -10,6 +10,7 @@
 #include <condition_variable>
 #include <shared_mutex>
 #include <queue>
+#include <iostream>
 #include <utility>
 #include "IMessage.h"
 #include "utility.hpp"
@@ -133,12 +134,12 @@ namespace messaging {
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
-    Queue<T>::Queue(const Queue<T> &other): queue(other.queue) {
+    Queue<T>::Queue(const Queue<T> &other): queue(other.queue), name(other.name) {
     }
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
-    Queue<T>::Queue(Queue<T> &&other) noexcept: queue(std::move(other.queue)) {
+    Queue<T>::Queue(Queue<T> &&other) noexcept: queue(std::move(other.queue)), name(std::move(other.name)) {
     }
 
     template<typename T>
@@ -153,6 +154,7 @@ namespace messaging {
     Queue<T> &Queue<T>::operator=(const Queue<T> &other) {
         mtxguard lock(mtx);
         if(this != &other) {
+            name = other.name;
             queue = other.queue;
         }
         return *this;
@@ -162,6 +164,7 @@ namespace messaging {
     requires DerivedFromTemplate<IMessage, T>
     Queue<T> &Queue<T>::operator=(Queue<T> &&other) noexcept {
         if(this != &other) {
+            name = std::move(other.name);
             queue = std::move(other.queue);
         }
         return *this;
