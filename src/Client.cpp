@@ -9,8 +9,6 @@
 
 namespace messaging {
 
-    std::mutex Client::mtx = std::mutex();
-
     messaging::Client::Client(std::vector <Topic> topics) : subscribed(std::move(topics)) {
 
     }

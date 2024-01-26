@@ -45,7 +45,6 @@ namespace messaging {
         void publishSingleMessage(const Topic& topic, const T& message);
 
     private:
-        static std::mutex mtx;
         std::vector<Topic> subscribed;
     };
 
@@ -53,13 +52,12 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     std::unordered_map<Topic, std::vector<std::shared_ptr<T>>> Client::fetchMessage() {
-        std::lock_guard lock(mtx);
         auto manager = MessageQueueManager<T>::Instance();
         std::unordered_map<Topic, std::vector<std::shared_ptr<T>>> ret;
         for(const auto& i : subscribed) {
             auto queue = manager->getAllRelatedQueue(i);
             for(auto& j : queue) {
-                auto message = j.get().forcePop();
+                auto message = j.get().wait();
                 ret[i].push_back(message);
             }
         }
@@ -69,7 +67,6 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     void Client::publishMessage(const T& message) {
-        std::lock_guard lock(mtx);
         auto manager = MessageQueueManager<T>::Instance();
         for (const auto& i: subscribed) {
             auto queue = manager->getAllRelatedQueue(i);
@@ -82,12 +79,12 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     std::vector<std::shared_ptr<T>> Client::fetchSingleTopic(const Topic &topic) {
-        std::lock_guard lock(mtx);
+
         auto manager = MessageQueueManager<T>::Instance();
         std::vector<std::shared_ptr<T>> ret;
         auto queue = manager->getAllRelatedQueue(topic);
         for (auto &j : queue) {
-            auto message = j.get().forcePop();
+            auto message = j.get().wait();
             ret.push_back(message);
         }
         return ret;
@@ -96,7 +93,6 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     void Client::publishSingleMessage(const Topic &topic, const T &message) {
-        std::lock_guard lock(mtx);
         auto manager = MessageQueueManager<T>::Instance();
         auto queue = manager->getAllRelatedQueue(topic);
         for (auto &i : queue) {

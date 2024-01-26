@@ -51,12 +51,6 @@ namespace messaging {
          */
         std::shared_ptr<T> wait();
 
-        /**
-         * get and pop the result immediately without waiting
-         * @remark this will not notify the wait()
-         * @return a std::shared_ptr containing message
-         */
-        std::shared_ptr<T> forcePop();
 
         /**
          * Push a message to the queue
@@ -93,17 +87,6 @@ namespace messaging {
     };
 
     template<typename T>
-    requires DerivedFromTemplate<IMessage, T>std::shared_ptr<T> Queue<T>::forcePop() {
-        mtxguard lock(mtx);
-        if(queue.empty()) {
-            return nullptr;
-        }
-        auto ret = std::make_shared<T>(std::move(queue.front()));
-        queue.pop();
-        return ret;
-    }
-
-    template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     std::mutex Queue<T>::mtx;
 
@@ -116,7 +99,7 @@ namespace messaging {
     requires DerivedFromTemplate<IMessage, T>
     std::shared_ptr<T> Queue<T>::wait() {
         std::unique_lock lock(mtx);
-        cond.wait(lock, [this](){return !queue.empty();});
+        cond.wait_for(lock, timeout, [this](){return !queue.empty();});
         auto ret = std::make_shared<T>(std::move(queue.front()));
         queue.pop();
         return ret;

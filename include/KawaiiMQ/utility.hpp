@@ -10,23 +10,29 @@
 #define KAWAIIMQ_UTILITY_H
 
 #include <type_traits>
+#include <chrono>
 
-template<template<typename...> class Base, typename Derived>
-struct IsDerivedFromTemplate {
-    template<typename... Args>
-    static constexpr bool Test(const Base<Args...> *) {
-        return std::is_base_of<Base<Args...>, Derived>::value;
-    }
+namespace messaging{
 
-    static constexpr bool Test(...) {
-        return false;
-    }
+    template<template<typename...> class Base, typename Derived>
+    struct IsDerivedFromTemplate {
+        template<typename... Args>
+        static constexpr bool Test(const Base<Args...> *) {
+            return std::is_base_of<Base<Args...>, Derived>::value;
+        }
 
-    static constexpr bool value = Test(static_cast<Derived *>(nullptr));
-};
+        static constexpr bool Test(...) {
+            return false;
+        }
 
-template<template<typename...> class Base, typename Derived>
-concept DerivedFromTemplate = IsDerivedFromTemplate<Base, Derived>::value;
+        static constexpr bool value = Test(static_cast<Derived *>(nullptr));
+    };
+
+    template<template<typename...> class Base, typename Derived>
+    concept DerivedFromTemplate = IsDerivedFromTemplate<Base, Derived>::value;
+
+    const auto timeout = std::chrono::milliseconds(1000);
+}
 
 #endif //KAWAIIMQ_UTILITY_H
 

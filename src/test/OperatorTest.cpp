@@ -6,9 +6,9 @@
 */
 
 #include "kawaiiMQ.h"
+#include "gtest/gtest.h"
 #include <string>
 #include <thread>
-#include <chrono>
 #include <iostream>
 
 TEST(operatorTest, SubscribeAndMessage) {
@@ -62,7 +62,7 @@ void pusher(const messaging::Topic& topic1, const messaging::Topic& topic2) {
     auto op = messaging::Client();
     op.subscribe(topic1);
     op.subscribe(topic2);
-    for(int i = 0; i < 10; ++i) {
+    for(int i = 0; i < 20; i += 2) {
         op.publishMessage(messaging::IntMessage(i));
         op.publishMessage(messaging::IntMessage(i + 1));
     }
@@ -75,21 +75,23 @@ void fetcher(bool& finish, const messaging::Topic& topic1, const messaging::Topi
     op.subscribe(topic1);
     op.subscribe(topic2);
     while(!finish) {
-        auto ans = op.fetchSingleTopic<messaging::IntMessage>(topic1);
-        ret = ans[0]->getContent();
-        EXPECT_EQ(ret, val);
-        std::cout << "ret: " << ret << " val: " << val << std::endl;
-        ret = ans[1]->getContent();
-        EXPECT_EQ(ret, val + 1);
-        std::cout << "ret: " << ret << " val: " << val + 1 << std::endl;
-        ans = op.fetchSingleTopic<messaging::IntMessage>(topic2);
-        ret = ans[0]->getContent();
-        EXPECT_EQ(ret, val);
-        std::cout << "ret: " << ret << " val: " << val << std::endl;
-        ret = ans[1]->getContent();
-        EXPECT_EQ(ret, val + 1);
-        std::cout << "ret: " << ret << " val: " << val + 1 << std::endl;
-        ++val;
+        for (int i = 0; i < 2; ++i) {
+            auto ans = op.fetchSingleTopic<messaging::IntMessage>(topic1);
+            ret = ans[0]->getContent();
+            EXPECT_EQ(ret, val + i);
+            std::cout << "ret: " << ret << " val: " << val + i << std::endl;
+            ret = ans[1]->getContent();
+            EXPECT_EQ(ret, val + i);
+            std::cout << "ret: " << ret << " val: " << val + i << std::endl;
+            ans = op.fetchSingleTopic<messaging::IntMessage>(topic2);
+            ret = ans[0]->getContent();
+            EXPECT_EQ(ret, val + i);
+            std::cout << "ret: " << ret << " val: " << val + i << std::endl;
+            ret = ans[1]->getContent();
+            EXPECT_EQ(ret, val + i);
+            std::cout << "ret: " << ret << " val: " << val + i << std::endl;
+        }
+        val += 2;
     }
 }
 
@@ -105,6 +107,9 @@ TEST(operatorTest, Multithread) {
     bool finish = false;
     auto th2 = std::thread(fetcher, std::ref(finish), std::ref(topic1), std::ref(topic2));
     th1.join();
+    while (!queue11.empty() || !queue12.empty() || !queue21.empty() || !queue22.empty()) {
+
+    }
     finish = true;
     th2.join();
 }
