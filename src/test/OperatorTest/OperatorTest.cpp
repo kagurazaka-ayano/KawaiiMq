@@ -51,10 +51,7 @@ TEST(operatorTest, SubscribeAndMessage) {
     }
 }
 
-auto queue11 = messaging::Queue<messaging::IntMessage>("test11");
-auto queue12 = messaging::Queue<messaging::IntMessage>("test12");
-auto queue21 = messaging::Queue<messaging::IntMessage>("test21");
-auto queue22 = messaging::Queue<messaging::IntMessage>("test22");
+
 
 void pusher(const messaging::Topic& topic1, const messaging::Topic& topic2) {
     auto manager = messaging::MessageQueueManager<messaging::IntMessage>::Instance();
@@ -75,7 +72,7 @@ void fetcher(bool& finish, const messaging::Topic& topic1, const messaging::Topi
     op.subscribe(topic1);
     op.subscribe(topic2);
     while(!finish) {
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2 && !finish; ++i) {
             auto ans = op.fetchSingleTopic<messaging::IntMessage>(topic1);
             ret = ans[0]->getContent();
             EXPECT_EQ(ret, val + i);
@@ -98,6 +95,14 @@ void fetcher(bool& finish, const messaging::Topic& topic1, const messaging::Topi
 TEST(operatorTest, Multithread) {
     auto topic1 = messaging::Topic("topic1");
     auto topic2 = messaging::Topic("topic2");
+    auto queue11 = messaging::Queue<messaging::IntMessage>("test11");
+    queue11.setTimeout(1000);
+    auto queue12 = messaging::Queue<messaging::IntMessage>("test12");
+    queue12.setTimeout(1000);
+    auto queue21 = messaging::Queue<messaging::IntMessage>("test21");
+    queue21.setTimeout(1000);
+    auto queue22 = messaging::Queue<messaging::IntMessage>("test22");
+    queue22.setTimeout(1000);
     auto manager = messaging::MessageQueueManager<messaging::IntMessage>::Instance();
     manager->relate(topic1, queue11);
     manager->relate(topic1, queue12);
