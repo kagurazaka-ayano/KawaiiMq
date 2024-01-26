@@ -5,8 +5,8 @@
  * @brief
 */
 
-#ifndef MESSAGEQUEUE_IMESSAGE_H
-#define MESSAGEQUEUE_IMESSAGE_H
+#ifndef KAWAIIMQ_IMESSAGE_H
+#define KAWAIIMQ_IMESSAGE_H
 #include <string>
 
 namespace messaging {
@@ -92,4 +92,4 @@ namespace messaging {
 
 }
 
-#endif //MESSAGEQUEUE_IMESSAGE_H
+#endif //KAWAIIMQ_IMESSAGE_H

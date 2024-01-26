@@ -5,6 +5,10 @@
  * @brief
 */
 
+
+#ifndef KAWAIIMQ_UTILITY_H
+#define KAWAIIMQ_UTILITY_H
+
 #include <type_traits>
 
 template<template<typename...> class Base, typename Derived>
@@ -24,4 +28,5 @@ struct IsDerivedFromTemplate {
 template<template<typename...> class Base, typename Derived>
 concept DerivedFromTemplate = IsDerivedFromTemplate<Base, Derived>::value;
 
+#endif //KAWAIIMQ_UTILITY_H
 

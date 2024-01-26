@@ -5,8 +5,9 @@
  * @brief
 */
 
-#ifndef MESSAGEQUEUE_TOPIC_H
-#define MESSAGEQUEUE_TOPIC_H
+
+#ifndef KAWAIIMQ_TOPIC_H
+#define KAWAIIMQ_TOPIC_H
 
 #include <string>
 #include <vector>
@@ -19,6 +20,7 @@ namespace messaging{
         explicit Topic(std::string name);
         Topic(const Topic& other);
         Topic(Topic&& other) noexcept;
+        Topic& operator=(const Topic& other);
         /**
          * get topic name
          * @return topic name
@@ -36,4 +38,4 @@ struct std::hash<messaging::Topic>{
 
 
 
-#endif //MESSAGEQUEUE_TOPIC_H
+#endif //KAWAIIMQ_TOPIC_H

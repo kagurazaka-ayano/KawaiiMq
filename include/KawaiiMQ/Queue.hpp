@@ -4,8 +4,8 @@
  * @date 1/22/24
 */
 
-#ifndef MESSAGEQUEUE_QUEUE_HPP
-#define MESSAGEQUEUE_QUEUE_HPP
+#ifndef KAWAIIMQ_QUEUE_HPP
+#define KAWAIIMQ_QUEUE_HPP
 
 #include <condition_variable>
 #include <shared_mutex>
@@ -20,9 +20,7 @@
 namespace messaging {
 
 
-    using mtxguard = std::lock_guard<std::shared_mutex>;
-    using mtxshared = std::shared_lock<std::shared_mutex>;
-    using mtxunique = std::unique_lock<std::shared_mutex>;
+    using mtxguard = std::lock_guard<std::mutex>;
     /**
      * A message queue that supports basic queue operation, and notification-based value fetch
      * @tparam T message content type
@@ -50,10 +48,15 @@ namespace messaging {
         /**
          * Wait for the result when called. Will pop the message if notified.
          * @return a std::shared_ptr containing message
-         * @tparam T message content type
          */
-
         std::shared_ptr<T> wait();
+
+        /**
+         * get and pop the result immediately without waiting
+         * @remark this will not notify the wait()
+         * @return a std::shared_ptr containing message
+         */
+        std::shared_ptr<T> forcePop();
 
         /**
          * Push a message to the queue
@@ -76,10 +79,6 @@ namespace messaging {
          */
         std::size_t size() const noexcept;
 
-        void sync_lock();
-
-        void sync_unlock();
-
         /**
          * Check if queue is empty
          * @return false if not empty, true if empty
@@ -87,24 +86,26 @@ namespace messaging {
         [[nodiscard]] bool empty() const noexcept;
 
     private:
-        static std::shared_mutex mtx;
+        static std::mutex mtx;
         std::queue<T> queue;
-        mutable std::condition_variable_any cond;
+        mutable std::condition_variable cond;
         std::string name;
     };
 
     template<typename T>
-    requires DerivedFromTemplate<IMessage, T>void Queue<T>::sync_unlock() {
-        mtx.unlock();
-    }
-    template<typename T>
-    requires DerivedFromTemplate<IMessage, T>void Queue<T>::sync_lock() {
-        mtx.lock();
+    requires DerivedFromTemplate<IMessage, T>std::shared_ptr<T> Queue<T>::forcePop() {
+        mtxguard lock(mtx);
+        if(queue.empty()) {
+            return nullptr;
+        }
+        auto ret = std::make_shared<T>(std::move(queue.front()));
+        queue.pop();
+        return ret;
     }
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
-    std::shared_mutex Queue<T>::mtx;
+    std::mutex Queue<T>::mtx;
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
@@ -114,8 +115,8 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     std::shared_ptr<T> Queue<T>::wait() {
-        mtxunique lock(mtx);
-        cond.wait(lock, [this]{return !queue.empty();});
+        std::unique_lock lock(mtx);
+        cond.wait(lock, [this](){return !queue.empty();});
         auto ret = std::make_shared<T>(std::move(queue.front()));
         queue.pop();
         return ret;
@@ -140,14 +141,14 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     std::size_t Queue<T>::size() const noexcept {
-        mtxshared lock(mtx);
+        mtxguard lock(mtx);
         return queue.size();
     }
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     bool Queue<T>::empty() const noexcept {
-        mtxshared lock(mtx);
+        mtxguard lock(mtx);
         return queue.empty();
     }
 
@@ -164,7 +165,7 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     bool Queue<T>::operator==(const Queue<T> &other) {
-        mtxshared lock(mtx);
+        mtxguard lock(mtx);
         return this == &other;
     }
 
@@ -191,4 +192,4 @@ namespace messaging {
 }
 
 
-#endif //MESSAGEQUEUE_QUEUE_HPP
+#endif //KAWAIIMQ_QUEUE_HPP

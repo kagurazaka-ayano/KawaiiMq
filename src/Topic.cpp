@@ -6,7 +6,6 @@
 */
 
 #include "Topic.h"
-#include <utility>
 
 
 namespace messaging{
@@ -30,6 +29,12 @@ namespace messaging{
 
     bool Topic::operator==(const Topic &other) const {
         return name == other.getName();
+    }
+    Topic& Topic::operator=(const Topic& other) {
+        if (&other != this) {
+            name = other.name;
+        }
+        return *this;
     }
 
 }
