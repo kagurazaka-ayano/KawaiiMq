@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.27)
 project(KawaiiMQ)
 include(CTest)
 
-
-
 set(CMAKE_CXX_STANDARD 23)
 
 
@@ -13,7 +11,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 file(GLOB SRC "./src/*.cpp")
-file(GLOB SRC_TEST "./src/test/*.cpp")
+file(GLOB_RECURSE SRC_TEST "./src/test/*.cpp")
 set(INCLUDE_USER "./include/${CMAKE_PROJECT_NAME}")
 set(INCLUDE_THIRDPARTIES "dependencies/include")
 set(LIB_ROOT "dependencies/lib")
@@ -28,5 +26,7 @@ add_library(${CMAKE_PROJECT_NAME} STATIC ${SRC})
 
 add_executable(${CMAKE_PROJECT_NAME}_TEST ${SRC_TEST} ${SRC})
 target_link_libraries(${CMAKE_PROJECT_NAME}_TEST PUBLIC ${LIB_GTEST})
+
+
 
 

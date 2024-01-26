@@ -2,7 +2,7 @@
  * @file MessageQueueManager.h
  * @author ayano
  * @date 1/22/24
- * @brief
+ * @brief MessageQueueManager is a singleton that manages all queues and topics
 */
 
 #ifndef KAWAIIMQ_MESSAGEQUEUEMANAGER_HPP

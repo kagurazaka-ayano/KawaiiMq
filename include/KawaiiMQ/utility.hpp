@@ -2,7 +2,7 @@
  * @file utility.cpp
  * @author ayano
  * @date 1/23/24
- * @brief
+ * @brief Utility functions
 */
 
 
@@ -31,7 +31,6 @@ namespace messaging{
     template<template<typename...> class Base, typename Derived>
     concept DerivedFromTemplate = IsDerivedFromTemplate<Base, Derived>::value;
 
-    const auto timeout = std::chrono::milliseconds(1000);
 }
 
 #endif //KAWAIIMQ_UTILITY_H

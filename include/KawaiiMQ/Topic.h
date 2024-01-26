@@ -2,7 +2,7 @@
  * @file Topic.h
  * @author ayano
  * @date 1/22/24
- * @brief
+ * @brief A topic that can be used to relate queues and subscribed by clients
 */
 
 

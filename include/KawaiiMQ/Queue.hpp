@@ -2,6 +2,7 @@
  * @file Queue.h
  * @author ayano
  * @date 1/22/24
+ * @brief A message queue that supports basic queue operation, and notification-based value fetch
 */
 
 #ifndef KAWAIIMQ_QUEUE_HPP
@@ -12,6 +13,7 @@
 #include <queue>
 #include <iostream>
 #include <utility>
+#include <limits>
 #include "IMessage.h"
 #include "utility.hpp"
 /**
@@ -79,12 +81,25 @@ namespace messaging {
          */
         [[nodiscard]] bool empty() const noexcept;
 
+        /**
+         * Set timeout for wait()
+         * @param timeout_ms timeout in milliseconds
+         * @remark 0 means no timeout
+         */
+        void setTimeout(int timeout_ms);
+
     private:
         static std::mutex mtx;
         std::queue<T> queue;
         mutable std::condition_variable cond;
         std::string name;
+        int timeout_ms = 0;
     };
+
+    template<typename T>
+    requires DerivedFromTemplate<IMessage, T>void Queue<T>::setTimeout(int timeout_ms)  {
+        this->timeout_ms = timeout_ms;
+    }
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
@@ -99,7 +114,12 @@ namespace messaging {
     requires DerivedFromTemplate<IMessage, T>
     std::shared_ptr<T> Queue<T>::wait() {
         std::unique_lock lock(mtx);
-        cond.wait_for(lock, timeout, [this](){return !queue.empty();});
+        if (timeout_ms == 0) {
+            cond.wait(lock, [this](){return !queue.empty();});
+        }
+        else {
+            cond.wait_for(lock, std::chrono::milliseconds(timeout_ms), [this](){return !queue.empty();});
+        }
         auto ret = std::make_shared<T>(std::move(queue.front()));
         queue.pop();
         return ret;

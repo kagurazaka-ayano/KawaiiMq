@@ -2,7 +2,7 @@
  * @file IMessage.h
  * @author ayano
  * @date 1/22/24
- * @brief
+ * @brief The message interface and other useful message types
 */
 
 #ifndef KAWAIIMQ_IMESSAGE_H
@@ -42,6 +42,9 @@ namespace messaging {
         virtual void setContent(T&& content) noexcept = 0;
     };
 
+    /*
+     * A specialized message that contains a string
+     */
     class StringMessage : public messaging::IMessage<std::string> {
     public:
         StringMessage(const std::string &content): content(content) {
@@ -68,6 +71,9 @@ namespace messaging {
         std::string content;
     };
 
+    /*
+     * A specialized message that contains an int
+     */
     class IntMessage : public messaging::IMessage<int> {
     public:
         IntMessage(int content): content(content) {
@@ -90,6 +96,29 @@ namespace messaging {
         int content;
     };
 
+    /*
+     * A specialized message that contains a double
+     */
+    class DoubleMessage : public messaging::IMessage<double> {
+    public:
+        DoubleMessage(double content): content(content) {
+
+        }
+
+        double getContent() override {
+            return content;
+        }
+
+        void setContent(const double& content) override {
+            this->content = content;
+        }
+
+        void setContent(double &&content) noexcept override {
+            this->content = content;
+        }
+    private:
+        double content;
+    };
 }
 
 #endif //KAWAIIMQ_IMESSAGE_H

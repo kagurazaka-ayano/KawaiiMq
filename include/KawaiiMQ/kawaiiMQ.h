@@ -2,7 +2,7 @@
  * @file kawaiiMQ.h
  * @author ayano
  * @date 1/26/24
- * @brief 
+ * @brief Include this file to use KawaiiMQ
  */
 
 #ifndef KAWAIIMQ_KAWAIIMQ_H

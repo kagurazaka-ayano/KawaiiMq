@@ -2,7 +2,7 @@
  * @file Client.h
  * @author ayano
  * @date 1/25/24
- * @brief
+ * @brief The Client class
 */
 
 #ifndef KAWAIIMQ_CLIENT_H
@@ -17,29 +17,62 @@
 #include "MessageQueueManager.hpp"
 
 namespace messaging {
-
+    /**
+     * The client of the message queue
+     * @remark A client is a user of the message queue system. It can subscribe to multiple topics and fetch messages from topics.
+     */
     class Client {
     public:
         Client() = default;
 
         explicit Client(std::vector<Topic> topics);
 
+        /**
+         * subscribe a topic
+         * @param topic given topic
+         */
         void subscribe(const Topic& topic);
 
+        /**
+         * unsubscribe a topic
+         * @param topic given topic
+         */
         void unsubscribe(const Topic& topic);
 
+        /**
+         * fetch message from all subscribed topics
+         * @tparam T type of message
+         * @return a map, key is topic, value is a vector of messages from each subscribed topic
+         */
         template<typename T>
         requires DerivedFromTemplate<IMessage, T>
         std::unordered_map<Topic, std::vector<std::shared_ptr<T>>> fetchMessage();
 
+        /**
+         * publish message to all subscribed topics
+         * @tparam T type of message
+         * @param message message you want to publish
+         */
         template<typename T>
         requires DerivedFromTemplate<IMessage, T>
         void publishMessage(const T& message);
 
+        /**
+         * fetch message from a single topic
+         * @tparam T type of message
+         * @param topic topic you want to fetch from
+         * @return a vector containing all messages from the topic
+         */
         template<typename T>
         requires DerivedFromTemplate<IMessage, T>
         std::vector<std::shared_ptr<T>> fetchSingleTopic(const Topic& topic);
 
+        /**
+         * publish message to a single topic
+         * @tparam T type of message
+         * @param topic topic you want to publish to
+         * @param message message you want to publish
+         */
         template<typename T>
         requires DerivedFromTemplate<IMessage, T>
         void publishSingleMessage(const Topic& topic, const T& message);
