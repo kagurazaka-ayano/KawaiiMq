@@ -5,8 +5,8 @@
  * @brief The message interface and other useful message types
 */
 
-#ifndef KAWAIIMQ_IMESSAGE_H
-#define KAWAIIMQ_IMESSAGE_H
+#ifndef KAWAIIMQ_IMESSAGE_HPP
+#define KAWAIIMQ_IMESSAGE_HPP
 #include <string>
 
 namespace messaging {
@@ -21,7 +21,7 @@ namespace messaging {
         /**
          * for other caller to find type;
          */
-        typedef T TYPE;
+        using TYPE = T;
 
         /**
          * get content of the message
@@ -121,4 +121,4 @@ namespace messaging {
     };
 }
 
-#endif //KAWAIIMQ_IMESSAGE_H
+#endif //KAWAIIMQ_IMESSAGE_HPP

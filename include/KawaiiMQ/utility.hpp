@@ -14,6 +14,11 @@
 
 namespace messaging{
 
+    /**
+     * A utility function to check if a type is derived from a template, do not need template specialization
+     * @tparam Base Base class you want to match
+     * @tparam Derived Derived class you want to check
+     */
     template<template<typename...> class Base, typename Derived>
     struct IsDerivedFromTemplate {
         template<typename... Args>
@@ -28,6 +33,11 @@ namespace messaging{
         static constexpr bool value = Test(static_cast<Derived *>(nullptr));
     };
 
+    /**
+     * associated type of IsDerivedFromTemplate
+     * @tparam Base Base class you want to match
+     * @tparam Derived Derived class you want to check
+     */
     template<template<typename...> class Base, typename Derived>
     concept DerivedFromTemplate = IsDerivedFromTemplate<Base, Derived>::value;
 

@@ -6,7 +6,7 @@
 */
 
 #include "Queue.hpp"
-#include "IMessage.h"
+#include "IMessage.hpp"
 #include "gtest/gtest.h"
 #include <thread>
 #include <string>

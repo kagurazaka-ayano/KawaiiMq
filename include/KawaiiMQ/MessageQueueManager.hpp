@@ -24,7 +24,6 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     class MessageQueueManager {
-        friend Queue<T>;
     public:
         MessageQueueManager &operator=(const MessageQueueManager &other) = delete;
 
@@ -57,43 +56,48 @@ namespace messaging {
          * @param topic given topic
          * @return all queues related to the topic
          */
-        auto getAllRelatedQueue(const Topic& topic);
+        auto getAllRelatedQueue(const Topic& topic) const;
+
+        /**
+         * get all topics that related to a queue
+         * @return all topics
+         */
+        auto getRelatedTopic() const;
+
+        /**
+         * check if a queue is related to a topic
+         * @param topic topic given
+         * @param queue queue given
+         * @return true if related, false otherwise
+         */
+        bool isRelated(const Topic& topic, const Queue<T>& queue);
 
     private:
         MessageQueueManager() = default;
-        static std::once_flag flag;
-        std::mutex mtx;
-        static std::shared_ptr<MessageQueueManager> instance;
+        mutable std::shared_mutex mtx;
         std::unordered_map<Topic, std::vector<std::reference_wrapper<Queue<T>>>> topic_map;
         std::unordered_map<std::string, Topic> registered_topic;
 
     };
 
-    template<typename T>
-    requires DerivedFromTemplate<IMessage, T>
-    std::once_flag MessageQueueManager<T>::flag = std::once_flag();
-
-
-    template<typename T>
-    requires DerivedFromTemplate<IMessage, T>
-    std::shared_ptr<MessageQueueManager<T>> MessageQueueManager<T>::instance = std::shared_ptr<MessageQueueManager<T>>();
-
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     std::shared_ptr<MessageQueueManager<T>> MessageQueueManager<T>::Instance() {
-        if (instance == nullptr) {
-            std::call_once(flag, [&] { instance.reset(new MessageQueueManager<T>); });
-        }
+        static std::shared_ptr<MessageQueueManager> instance(new MessageQueueManager<T>());
         return instance;
     }
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     void MessageQueueManager<T>::relate(const Topic &topic, Queue<T> &queue) {
-        registered_topic.try_emplace(topic.getName(), topic);
+        std::lock_guard lock(mtx);
+        auto& queues = topic_map[topic];
         auto it = std::find_if(topic_map[topic].begin(), topic_map[topic].end(),
                                [&queue](const Queue<T> &q) { return &q == &queue; });
-        if (it == topic_map[topic].end()) {
+        if (std::find_if(queues.begin(), queues.end(), [&queue](const Queue<T>& q) {
+            return &q == &queue;
+        }) == queues.end()) {
+            registered_topic.try_emplace(topic.getName(), topic);
             topic_map[topic].push_back(std::ref(queue));
         } else {
             std::cerr << "Attempted to relate duplicated queue in same topic: " << topic.getName() << std::endl;
@@ -104,8 +108,12 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     void MessageQueueManager<T>::unrelate(const Topic &topic, const Queue<T> &queue) {
-        if (std::find(topic_map[topic].begin(), topic_map[topic].end(), queue) == topic_map[topic].end()) {
-            std::remove(topic_map[topic].begin(), topic_map[topic].end(), queue);
+        if (std::find_if(topic_map[topic].begin(), topic_map[topic].end(), [&queue](const Queue<T>& q) {
+            return &q == &queue;
+        }) == topic_map[topic].end()) {
+            std::remove_if(topic_map[topic].begin(), topic_map[topic].end(), [&queue](const Queue<T>& q) {
+                return &q == &queue;
+            });
             if (topic_map[topic].empty()) {
                 registered_topic.erase(topic.getName());
             }
@@ -117,8 +125,29 @@ namespace messaging {
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
-    auto MessageQueueManager<T>::getAllRelatedQueue(const Topic& topic) {
-        return topic_map[topic];
+    auto MessageQueueManager<T>::getAllRelatedQueue(const Topic& topic) const {
+        std::shared_lock lock(mtx);
+        return topic_map.at(topic);
+
+    }
+
+    template<typename T>
+    requires DerivedFromTemplate<IMessage, T>
+    bool MessageQueueManager<T>::isRelated(const Topic& topic, const Queue<T>& queue) {
+        std::shared_lock lock(mtx);
+        auto& queues = topic_map[topic];
+        return std::find_if(queues.begin(), queues.end(), [&queue](const Queue<T>& q){return &q == &queue;}) != queues.end();
+    }
+
+    template<typename T>
+    requires DerivedFromTemplate<IMessage, T>
+    auto MessageQueueManager<T>::getRelatedTopic() const {
+        std::shared_lock lock(mtx);
+        std::vector<Topic> ret;
+        for(const auto& i : topic_map) {
+            ret.push_back(i.first);
+        }
+        return ret;
     }
 }
 #endif //KAWAIIMQ_MESSAGEQUEUEMANAGER_HPP
