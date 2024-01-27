@@ -17,18 +17,21 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-include(GoogleTest)
-enable_testing()
-file(GLOB SRC "./src/*.cpp")
-set(INCLUDE_USER "./include/${CMAKE_PROJECT_NAME}")
-set(INCLUDE_THIRDPARTIES "dependencies/include")
-set(LIB_ROOT "dependencies/lib")
-set(INCLUDE ${INCLUDE_USER})
 
+file(GLOB SRC "./src/*.cpp")
+set(INCLUDE "./include/KawaiiMQ")
 include_directories(${INCLUDE})
 add_library(KawaiiMQ STATIC ${SRC})
+set(PACKAGE_FILES ${SRC} ${INCLUDE} CMakeLists.txt)
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/KawaiiMQ-src.zip
+        COMMAND ${CMAKE_COMMAND} -E tar c ${CMAKE_CURRENT_BINARY_DIR}/KawaiiMQ-src.zip --format=zip -- ${PACKAGE_FILES}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS ${PACKAGE_FILES})
+add_custom_target(KawaiiMQ_package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/KawaiiMQ-src.zip)
 
 
+include(GoogleTest)
+enable_testing()
 file(GLOB OperatorTest "./src/test/OperatorTest/*.cpp")
 add_executable(OperatorTest ${OperatorTest} ${SRC})
 target_link_libraries(OperatorTest PRIVATE gmock_main)
@@ -46,3 +49,6 @@ add_executable(ManagerTest ${ManagerTest} ${SRC})
 target_link_libraries(ManagerTest PRIVATE gmock_main)
 add_test(NAME ManagerTest COMMAND ManagerTest)
 gtest_discover_tests(ManagerTest)
+
+# package for fetch content
+
