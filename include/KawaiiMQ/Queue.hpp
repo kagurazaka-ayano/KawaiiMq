@@ -116,9 +116,13 @@ namespace messaging {
         std::unique_lock lock(mtx);
         if (timeout_ms == 0) {
             cond.wait(lock, [this](){return !queue.empty();});
+
         }
         else {
             cond.wait_for(lock, std::chrono::milliseconds(timeout_ms), [this](){return !queue.empty();});
+            if(queue.empty()) {
+                throw std::runtime_error("queue fetch timeout");
+            }
         }
         auto ret = std::make_shared<T>(std::move(queue.front()));
         queue.pop();

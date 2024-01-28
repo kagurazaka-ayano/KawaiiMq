@@ -79,6 +79,14 @@ namespace messaging {
          */
         bool isRelatedAny(const Topic& topic);
 
+        /**
+         * flush all queues and topics
+         * @remark this function is for testing only
+         * @warning this function will clear all queues and topics
+         * @warning DO NOT USE THIS FUNCTION IN PRODUCTION
+         */
+        void flush();
+
     private:
         MessageQueueManager() = default;
         mutable std::shared_mutex mtx;
@@ -166,6 +174,13 @@ namespace messaging {
     bool MessageQueueManager<T>::isRelatedAny(const Topic& topic){
         std::shared_lock lock(mtx);
         return topic_map.find(topic) != topic_map.end();
+    }
+    template<typename T>
+    requires DerivedFromTemplate<IMessage, T>
+    void MessageQueueManager<T>::flush() {
+        std::lock_guard lock(mtx);
+        topic_map.clear();
+        registered_topic.clear();
     }
 }
 #endif //KAWAIIMQ_MESSAGEQUEUEMANAGER_HPP

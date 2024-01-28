@@ -15,13 +15,10 @@ cmake --build . --target KawaiiMQ
 ```
 
 to run test, run
-
 ```bash
 cmake --build .
 ctest
-
 ```
-
 in build directory
 
 to build documentation, run `./scripts/makeDoc.sh`
