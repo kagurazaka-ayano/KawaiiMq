@@ -17,11 +17,13 @@ TEST(ProducerTest, SubscribeToNewTopic) {
     Producer<IntMessage> producer;
     Queue<IntMessage> queue;
     auto manager = MessageQueueManager<IntMessage>::Instance();
+    manager->flush();
     Topic topic1{"topic1"};
     manager->relate(topic1, queue);
 
     ASSERT_NO_THROW(producer.subscribe(topic1));
     manager->unrelate(topic1, queue);
+    manager->flush();
 }
 
 TEST(ProducerTest, SubscribeToAlreadySubscribedTopic) {
@@ -32,7 +34,7 @@ TEST(ProducerTest, SubscribeToAlreadySubscribedTopic) {
     manager->relate(topic1, queue);
     producer.subscribe(topic1);
     ASSERT_THROW(producer.subscribe(topic1), std::runtime_error);
-    manager->unrelate(topic1, queue);
+    manager->flush();
 }
 
 TEST(ProducerTest, UnsubscribeFromSubscribedTopic) {
@@ -43,7 +45,7 @@ TEST(ProducerTest, UnsubscribeFromSubscribedTopic) {
     manager->relate(topic1, queue);
     producer.subscribe(topic1);
     ASSERT_NO_THROW(producer.unsubscribe(topic1));
-    manager->unrelate(topic1, queue);
+    manager->flush();
 }
 
 TEST(ProducerTest, UnsubscribeFromNotSubscribedTopic) {
@@ -53,7 +55,7 @@ TEST(ProducerTest, UnsubscribeFromNotSubscribedTopic) {
     auto manager = MessageQueueManager<IntMessage>::Instance();
     manager->relate(topic1, queue);
     ASSERT_THROW(producer.unsubscribe(topic1), std::runtime_error);
-    manager->unrelate(topic1, queue);
+    manager->flush();
 }
 
 TEST(ProducerTest, PublishMessageToSubscribedTopic) {
@@ -65,7 +67,7 @@ TEST(ProducerTest, PublishMessageToSubscribedTopic) {
     auto message = IntMessage(1);
     producer.subscribe(topic1);
     ASSERT_NO_THROW(producer.publishMessage(topic1, message));
-    manager->unrelate(topic1, queue);
+    manager->flush();
 }
 
 TEST(ProducerTest, PublishMessageToNotSubscribedTopic) {
@@ -84,7 +86,6 @@ TEST(ProducerTest, BroadcastMessageWhenNoTopicSubscribed) {
 TEST(ProducerTest, BroadcastMessageWhenTopicsSubscribed) {
     Producer<IntMessage> producer;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     Topic topic1{"topic1"};
     Topic topic2{"topic2"};
     auto queue1 = Queue<IntMessage>();
@@ -95,28 +96,29 @@ TEST(ProducerTest, BroadcastMessageWhenTopicsSubscribed) {
     producer.subscribe(topic1);
     producer.subscribe(topic2);
     ASSERT_NO_THROW(producer.broadcastMessage(message));
+    manager->flush();
 }
 
 
 TEST(ConsumerTest, SubscribeToNewTopic) {
     Consumer<IntMessage> consumer;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     Topic topic1{"topic1"};
     Queue<IntMessage> queue;
     manager->relate(topic1, queue);
     ASSERT_NO_THROW(consumer.subscribe(topic1));
+    manager->flush();
 }
 
 TEST(ConsumerTest, SubscribeToAlreadySubscribedTopic) {
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     Consumer<IntMessage> consumer;
     Topic topic1{"topic1"};
     Queue<IntMessage> queue;
     manager->relate(topic1, queue);
     consumer.subscribe(topic1);
     ASSERT_THROW(consumer.subscribe(topic1), std::runtime_error);
+    manager->flush();
 }
 
 TEST(ConsumerTest, UnsubscribeFromSubscribedTopic) {
@@ -124,10 +126,10 @@ TEST(ConsumerTest, UnsubscribeFromSubscribedTopic) {
     Topic topic1{"topic1"};
     Queue<IntMessage> queue;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     manager->relate(topic1, queue);
     consumer.subscribe(topic1);
     ASSERT_NO_THROW(consumer.unsubscribe(topic1));
+    manager->flush();
 }
 
 TEST(ConsumerTest, UnsubscribeFromNotSubscribedTopic) {
@@ -135,9 +137,9 @@ TEST(ConsumerTest, UnsubscribeFromNotSubscribedTopic) {
     Topic topic1{"topic1"};
     Queue<IntMessage> queue;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     manager->relate(topic1, queue);
     ASSERT_THROW(consumer.unsubscribe(topic1), std::runtime_error);
+    manager->flush();
 }
 
 TEST(ConsumerTest, FetchMessageFromSubscribedEmptyTopic) {
@@ -145,10 +147,10 @@ TEST(ConsumerTest, FetchMessageFromSubscribedEmptyTopic) {
     Topic topic1{"topic1"};
     Queue<IntMessage> queue;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     manager->relate(topic1, queue);
     consumer.subscribe(topic1);
     ASSERT_THROW(consumer.fetchSingleTopic(topic1), std::runtime_error);
+    manager->flush();
 }
 
 TEST(ConsumerTest, FetchMessageFromNotSubscribedTopic) {
@@ -156,14 +158,13 @@ TEST(ConsumerTest, FetchMessageFromNotSubscribedTopic) {
     Topic topic1{"topic1"};
     Queue<IntMessage> queue;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     manager->relate(topic1, queue);
     ASSERT_THROW(consumer.fetchSingleTopic(topic1), std::runtime_error);
+    manager->flush();
 }
 
 TEST(ConsumerTest, FetchMessageFromAllSubscribedTopics) {
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     Consumer<IntMessage> consumer;
     Topic topic1{"topic1"};
     Queue<IntMessage> queue1;
@@ -178,6 +179,7 @@ TEST(ConsumerTest, FetchMessageFromAllSubscribedTopics) {
     consumer.subscribe(topic1);
     consumer.subscribe(topic2);
     ASSERT_NO_THROW(consumer.fetchMessage());
+    manager->flush();
 }
 
 TEST(ConsumerTest, FetchMessageWhenNoTopicSubscribed) {
@@ -190,7 +192,6 @@ TEST(ProducerTest, ConcurrentPublishToSubscribedTopic) {
     Producer<IntMessage> producer;
     Queue<IntMessage> queue;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     Topic topic1{"topic1"};
     manager->relate(topic1, queue);
     auto message = IntMessage(1);
@@ -204,6 +205,7 @@ TEST(ProducerTest, ConcurrentPublishToSubscribedTopic) {
 
     ASSERT_EQ(queue.size(), 2);
     manager->unrelate(topic1, queue);
+    manager->flush();
 }
 
 TEST(ConsumerTest, ConcurrentFetchFromSubscribedTopic) {
@@ -211,7 +213,6 @@ TEST(ConsumerTest, ConcurrentFetchFromSubscribedTopic) {
     Topic topic1{"topic1"};
     Queue<IntMessage> queue;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     manager->relate(topic1, queue);
     consumer.subscribe(topic1);
 
@@ -228,6 +229,7 @@ TEST(ConsumerTest, ConcurrentFetchFromSubscribedTopic) {
 
     ASSERT_EQ(queue.size(), 0);
     manager->unrelate(topic1, queue);
+    manager->flush();
 }
 
 TEST(ProducerConsumerTest, MultipleConsumersFetchingFromSingleProducer) {
@@ -236,7 +238,6 @@ TEST(ProducerConsumerTest, MultipleConsumersFetchingFromSingleProducer) {
     Topic topic1{"topic1"};
     Queue<IntMessage> queue;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     manager->relate(topic1, queue);
     producer.subscribe(topic1);
     consumer1.subscribe(topic1);
@@ -256,7 +257,7 @@ TEST(ProducerConsumerTest, MultipleConsumersFetchingFromSingleProducer) {
     t3.join();
 
     ASSERT_EQ(queue.size(), 0);
-    manager->unrelate(topic1, queue);
+    manager->flush();
 }
 
 TEST(ProducerConsumerTest, NoDataMissedWithMultipleConsumersFetchingFromSingleProducer) {
@@ -265,7 +266,6 @@ TEST(ProducerConsumerTest, NoDataMissedWithMultipleConsumersFetchingFromSinglePr
     Topic topic1{"topic1"};
     Queue<IntMessage> queue;
     auto manager = MessageQueueManager<IntMessage>::Instance();
-    manager->flush();
     manager->relate(topic1, queue);
     producer.subscribe(topic1);
     consumer1.subscribe(topic1);
@@ -282,5 +282,5 @@ TEST(ProducerConsumerTest, NoDataMissedWithMultipleConsumersFetchingFromSinglePr
 
     ASSERT_EQ(f1.get()[0]->getContent() + f2.get()[0]->getContent() + f3.get()[0]->getContent(), 6);
 
-    manager->unrelate(topic1, queue);
+    manager->flush();
 }

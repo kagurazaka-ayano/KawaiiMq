@@ -12,45 +12,76 @@
 #include <string>
 #include <chrono>
 
-TEST(QueueTest, PushAndWait) {
-    auto queue = messaging::Queue<messaging::StringMessage>("test");
-    std::string out;
-    std::stringstream str;
+using namespace messaging;
 
-    for(int i = 0; i < 10; ++i){
-        str << i;
-        queue.push(messaging::StringMessage(str.str()));
-        out = queue.wait()->getContent();
-        EXPECT_EQ(out, str.str());
-        str.str("");
+TEST(QueueTest, HighDataFlowWithConcurrentAccess) {
+    Queue<IntMessage> queue;
+    const int dataFlow = 10000;
+    std::vector<IntMessage> messages;
+    for (int i = 0; i < dataFlow; ++i) {
+        messages.push_back(IntMessage(i));
     }
-}
 
-void pusher(messaging::Queue<messaging::StringMessage>& queue_in) {
-    for (int i = 0; i < 10; ++i) {
-        std::stringstream str;
-        str << i;
-        queue_in.push(str.str());
-        str.str("");
-    }
-}
-
-void fetcher(messaging::Queue<messaging::StringMessage>& queue_in) {
-    while(!queue_in.empty()) {
-        for (int i = 0; i < 10; ++i) {
-            std::stringstream str;
-            str << i;
-            auto ret = queue_in.wait()->getContent();
-            EXPECT_EQ(ret, str.str());
-            str.str("");
+    std::thread producer([&]() {
+        for (const auto& message : messages) {
+            queue.push(message);
         }
+    });
+
+    std::vector<IntMessage> fetchedMessages;
+    std::thread consumer([&]() {
+        for (int i = 0; i < dataFlow; ++i) {
+            fetchedMessages.push_back(*queue.wait());
+        }
+    });
+
+    producer.join();
+    consumer.join();
+
+    ASSERT_EQ(fetchedMessages.size(), dataFlow);
+    for (int i = 0; i < dataFlow; ++i) {
+        ASSERT_EQ(fetchedMessages[i].getContent(), i);
     }
 }
 
-TEST(QueueTest, Multithread) {
-    auto queue = messaging::Queue<messaging::StringMessage>("test");
-    auto th1 = std::thread(pusher, std::ref(queue));
-    auto th2 = std::thread(fetcher, std::ref(queue));
-    th1.join();
-    th2.join();
+TEST(QueueTest, HighDataFlowWithMultipleProducersAndConsumers) {
+    Queue<IntMessage> queue;
+    const int dataFlow = 10000;
+    std::vector<IntMessage> messages;
+    for (int i = 0; i < dataFlow; ++i) {
+        messages.push_back(IntMessage(i));
+    }
+
+    std::thread producer1([&]() {
+        for (const auto& message : messages) {
+            queue.push(message);
+        }
+    });
+
+    std::thread producer2([&]() {
+        for (const auto& message : messages) {
+            queue.push(message);
+        }
+    });
+
+    std::vector<IntMessage> fetchedMessages1;
+    std::thread consumer1([&]() {
+        for (int i = 0; i < dataFlow; ++i) {
+            fetchedMessages1.push_back(*queue.wait());
+        }
+    });
+
+    std::vector<IntMessage> fetchedMessages2;
+    std::thread consumer2([&]() {
+        for (int i = 0; i < dataFlow; ++i) {
+            fetchedMessages2.push_back(*queue.wait());
+        }
+    });
+
+    producer1.join();
+    producer2.join();
+    consumer1.join();
+    consumer2.join();
+
+    ASSERT_EQ(fetchedMessages1.size() + fetchedMessages2.size(), 2 * dataFlow);
 }
