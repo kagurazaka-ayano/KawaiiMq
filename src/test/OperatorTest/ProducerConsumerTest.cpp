@@ -78,54 +78,54 @@ TEST(ProducerTest, BroadcastMessageWhenTopicsSubscribed) {
 
 
 TEST(ConsumerTest, SubscribeToNewTopic) {
-    Consumer consumer;
+    Consumer<IntMessage> consumer;
     Topic topic1{"topic1"};
     ASSERT_NO_THROW(consumer.subscribe(topic1));
 }
 
 TEST(ConsumerTest, SubscribeToAlreadySubscribedTopic) {
-    Consumer consumer;
+    Consumer<IntMessage> consumer;
     Topic topic1{"topic1"};
     consumer.subscribe(topic1);
     ASSERT_THROW(consumer.subscribe(topic1), std::runtime_error);
 }
 
 TEST(ConsumerTest, UnsubscribeFromSubscribedTopic) {
-    Consumer consumer;
+    Consumer<IntMessage> consumer;
     Topic topic1{"topic1"};
     consumer.subscribe(topic1);
     ASSERT_NO_THROW(consumer.unsubscribe(topic1));
 }
 
 TEST(ConsumerTest, UnsubscribeFromNotSubscribedTopic) {
-    Consumer consumer;
+    Consumer<IntMessage> consumer;
     Topic topic1{"topic1"};
     ASSERT_THROW(consumer.unsubscribe(topic1), std::runtime_error);
 }
 
 TEST(ConsumerTest, FetchMessageFromSubscribedTopic) {
-    Consumer consumer;
+    Consumer<IntMessage> consumer;
     Topic topic1{"topic1"};
     consumer.subscribe(topic1);
-    ASSERT_NO_THROW(consumer.fetchSingleTopic<IMessage>(topic1));
+    ASSERT_NO_THROW(consumer.fetchSingleTopic(topic1));
 }
 
 TEST(ConsumerTest, FetchMessageFromNotSubscribedTopic) {
-    Consumer consumer;
+    Consumer<IntMessage> consumer;
     Topic topic1{"topic1"};
-    ASSERT_THROW(consumer.fetchSingleTopic<IMessage>(topic1), std::runtime_error);
+    ASSERT_THROW(consumer.fetchSingleTopic(topic1), std::runtime_error);
 }
 
 TEST(ConsumerTest, FetchMessageFromAllSubscribedTopics) {
-    Consumer consumer;
+    Consumer<IntMessage> consumer;
     Topic topic1{"topic1"};
     Topic topic2{"topic2"};
     consumer.subscribe(topic1);
     consumer.subscribe(topic2);
-    ASSERT_NO_THROW(consumer.fetchMessage<IMessage>());
+    ASSERT_NO_THROW(consumer.fetchMessage());
 }
 
 TEST(ConsumerTest, FetchMessageWhenNoTopicSubscribed) {
-    Consumer consumer;
-    ASSERT_NO_THROW(consumer.fetchMessage<IMessage>());
+    Consumer<IntMessage> consumer;
+    ASSERT_NO_THROW(consumer.fetchMessage());
 }

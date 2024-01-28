@@ -47,8 +47,6 @@ namespace messaging {
          */
         std::unordered_map<Topic, std::vector<std::shared_ptr<T>>> fetchMessage();
 
-
-
         /**
          * fetch all messages from a single topic
          * @param topic given topic
@@ -109,6 +107,10 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     void Consumer<T>::subscribe(const Topic &topic) {
+        auto manager = MessageQueueManager<T>::Instance();
+        if (!manager->isRelatedAny(topic)) {
+            throw std::runtime_error("Attempting to subscribe a topic not related to any queue! Topic: " + topic.getName());
+        }
         if (std::find(subscribed.begin(), subscribed.end(), topic) == subscribed.end()) {
             subscribed.push_back(topic);
         }
