@@ -22,7 +22,7 @@ file(GLOB SRC "./src/*.cpp")
 set(INCLUDE "./include/KawaiiMQ")
 include_directories(${INCLUDE})
 add_library(KawaiiMQ STATIC ${SRC})
-set(PACKAGE_FILES ${SRC} ${INCLUDE} CMakeLists.txt)
+set(PACKAGE_FILES ${SRC} ${INCLUDE} CMakeLists.txt LICENSE)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/KawaiiMQ-src.zip
         COMMAND ${CMAKE_COMMAND} -E tar c ${CMAKE_CURRENT_BINARY_DIR}/KawaiiMQ-src.zip --format=zip -- ${PACKAGE_FILES}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

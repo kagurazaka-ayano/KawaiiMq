@@ -72,6 +72,13 @@ namespace messaging {
          */
         bool isRelated(const Topic& topic, const Queue<T>& queue);
 
+        /**
+         * check if a topic is related to any queue
+         * @param topic topic given
+         * @return true if related to any queue, false otherwise
+         */
+        bool isRelatedAny(const Topic& topic);
+
     private:
         MessageQueueManager() = default;
         mutable std::shared_mutex mtx;
@@ -92,15 +99,13 @@ namespace messaging {
     void MessageQueueManager<T>::relate(const Topic &topic, Queue<T> &queue) {
         std::lock_guard lock(mtx);
         auto& queues = topic_map[topic];
-        auto it = std::find_if(topic_map[topic].begin(), topic_map[topic].end(),
-                               [&queue](const Queue<T> &q) { return &q == &queue; });
         if (std::find_if(queues.begin(), queues.end(), [&queue](const Queue<T>& q) {
             return &q == &queue;
         }) == queues.end()) {
             registered_topic.try_emplace(topic.getName(), topic);
             topic_map[topic].push_back(std::ref(queue));
         } else {
-            std::cerr << "Attempted to relate duplicated queue in same topic: " << topic.getName() << std::endl;
+            throw std::runtime_error("Attempted to relate duplicated queue in same topic: " + topic.getName());
         }
     }
 
@@ -108,18 +113,19 @@ namespace messaging {
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
     void MessageQueueManager<T>::unrelate(const Topic &topic, const Queue<T> &queue) {
+        std::lock_guard lock(mtx);
         if (std::find_if(topic_map[topic].begin(), topic_map[topic].end(), [&queue](const Queue<T>& q) {
             return &q == &queue;
-        }) == topic_map[topic].end()) {
-            std::remove_if(topic_map[topic].begin(), topic_map[topic].end(), [&queue](const Queue<T>& q) {
+        }) != topic_map[topic].end()) {
+            topic_map[topic].erase(std::remove_if(topic_map[topic].begin(), topic_map[topic].end(), [&queue](const Queue<T>& q) {
                 return &q == &queue;
-            });
+            }), topic_map[topic].end());
             if (topic_map[topic].empty()) {
                 registered_topic.erase(topic.getName());
             }
         }
         else {
-            std::cerr << "Attempted to unrelate nonexistent queue from topic: " << topic.getName() << std::endl;
+            throw std::runtime_error("Attempted to unrelate nonexistent queue from topic: " + topic.getName());
         }
     }
 
@@ -127,7 +133,12 @@ namespace messaging {
     requires DerivedFromTemplate<IMessage, T>
     auto MessageQueueManager<T>::getAllRelatedQueue(const Topic& topic) const {
         std::shared_lock lock(mtx);
-        return topic_map.at(topic);
+        try {
+            return topic_map.at(topic);
+        }
+        catch (std::out_of_range& e) {
+            throw std::runtime_error("Topic " + topic.getName() + " didn't relate to any queue");
+        }
 
     }
 
@@ -148,6 +159,13 @@ namespace messaging {
             ret.push_back(i.first);
         }
         return ret;
+    }
+
+    template<typename T>
+    requires DerivedFromTemplate<IMessage, T>
+    bool MessageQueueManager<T>::isRelatedAny(const Topic& topic){
+        std::shared_lock lock(mtx);
+        return topic_map.find(topic) != topic_map.end();
     }
 }
 #endif //KAWAIIMQ_MESSAGEQUEUEMANAGER_HPP
