@@ -11,23 +11,23 @@
 
 TEST(ManagerTest, SingletonMiltiThreadTest) {
     auto result1 = std::async(std::launch::async, [](){
-        return messaging::MessageQueueManager<messaging::IntMessage>::Instance();
+        return KawaiiMQ::MessageQueueManager<KawaiiMQ::IntMessage>::Instance();
     });
     auto result2 = std::async(std::launch::async, [](){
-        return messaging::MessageQueueManager<messaging::IntMessage>::Instance();
+        return KawaiiMQ::MessageQueueManager<KawaiiMQ::IntMessage>::Instance();
     });
     EXPECT_EQ(result1.get(), result2.get());
 }
 
 TEST(ManagerTest, RelateAndUnrelate) {
-    auto topic1 = messaging::Topic("topic1");
-    auto topic2 = messaging::Topic("topic2");
-    auto queue11 = messaging::Queue<messaging::IntMessage>("test11");
-    auto queue12 = messaging::Queue<messaging::IntMessage>("test12");
-    auto queue21 = messaging::Queue<messaging::IntMessage>("test21");
-    auto queue22 = messaging::Queue<messaging::IntMessage>("test22");
+    auto topic1 = KawaiiMQ::Topic("topic1");
+    auto topic2 = KawaiiMQ::Topic("topic2");
+    auto queue11 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test11");
+    auto queue12 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test12");
+    auto queue21 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test21");
+    auto queue22 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test22");
 
-    auto manager = messaging::MessageQueueManager<messaging::IntMessage>::Instance();
+    auto manager = KawaiiMQ::MessageQueueManager<KawaiiMQ::IntMessage>::Instance();
     manager->relate(topic1, queue11);
     manager->relate(topic1, queue12);
     manager->relate(topic2, queue21);
@@ -49,14 +49,14 @@ TEST(ManagerTest, RelateAndUnrelate) {
 }
 
 TEST(ManagerTest, RelateAndUnrelateMultiThread) {
-    auto topic1 = messaging::Topic("topic1");
-    auto topic2 = messaging::Topic("topic2");
-    auto queue11 = messaging::Queue<messaging::IntMessage>("test11");
-    auto queue12 = messaging::Queue<messaging::IntMessage>("test12");
-    auto queue21 = messaging::Queue<messaging::IntMessage>("test21");
-    auto queue22 = messaging::Queue<messaging::IntMessage>("test22");
+    auto topic1 = KawaiiMQ::Topic("topic1");
+    auto topic2 = KawaiiMQ::Topic("topic2");
+    auto queue11 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test11");
+    auto queue12 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test12");
+    auto queue21 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test21");
+    auto queue22 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test22");
 
-    auto manager = messaging::MessageQueueManager<messaging::IntMessage>::Instance();
+    auto manager = KawaiiMQ::MessageQueueManager<KawaiiMQ::IntMessage>::Instance();
     auto result1 = std::async(std::launch::async, [&](){
         manager->relate(topic1, queue11);
         manager->relate(topic1, queue12);
@@ -76,12 +76,12 @@ TEST(ManagerTest, RelateAndUnrelateMultiThread) {
 }
 
 TEST(ManagerTest, ConcurrentAccess) {
-    auto topic1 = messaging::Topic("topic1");
-    auto topic2 = messaging::Topic("topic2");
-    auto queue1 = messaging::Queue<messaging::IntMessage>("test1");
-    auto queue2 = messaging::Queue<messaging::IntMessage>("test2");
+    auto topic1 = KawaiiMQ::Topic("topic1");
+    auto topic2 = KawaiiMQ::Topic("topic2");
+    auto queue1 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test1");
+    auto queue2 = KawaiiMQ::Queue<KawaiiMQ::IntMessage>("test2");
 
-    auto manager = messaging::MessageQueueManager<messaging::IntMessage>::Instance();
+    auto manager = KawaiiMQ::MessageQueueManager<KawaiiMQ::IntMessage>::Instance();
 
     std::thread t1([&]() {
         manager->relate(topic1, queue1);
@@ -101,11 +101,11 @@ TEST(ManagerTest, ConcurrentAccess) {
 }
 
 TEST(ProducerConsumerTest, HighDataFlowWithSingleProducerMultipleConsumers) {
-    messaging::Producer<messaging::IntMessage> producer;
-    messaging::Consumer<messaging::IntMessage> consumer1, consumer2, consumer3;
-    messaging::Topic topic1{"topic1"};
-    messaging::Queue<messaging::IntMessage> queue;
-    auto manager = messaging::MessageQueueManager<messaging::IntMessage>::Instance();
+    KawaiiMQ::Producer<KawaiiMQ::IntMessage> producer;
+    KawaiiMQ::Consumer<KawaiiMQ::IntMessage> consumer1, consumer2, consumer3;
+    KawaiiMQ::Topic topic1{"topic1"};
+    KawaiiMQ::Queue<KawaiiMQ::IntMessage> queue;
+    auto manager = KawaiiMQ::MessageQueueManager<KawaiiMQ::IntMessage>::Instance();
     manager->flush();
     manager->relate(topic1, queue);
     producer.subscribe(topic1);
@@ -116,7 +116,7 @@ TEST(ProducerConsumerTest, HighDataFlowWithSingleProducerMultipleConsumers) {
     const int dataFlow = 10000;
     int ans = 0;
     for (int i = 0; i < dataFlow; ++i) {
-        producer.publishMessage(topic1, messaging::IntMessage(i));
+        producer.publishMessage(topic1, KawaiiMQ::IntMessage(i));
         ans += i;
     }
 

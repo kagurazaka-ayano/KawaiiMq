@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.27)
 project(KawaiiMQ LANGUAGES CXX)
 include(CTest)
 include(FetchContent)
-include(GoogleTest)
 set(CMAKE_CXX_STANDARD 23)
 
 FetchContent_Declare(

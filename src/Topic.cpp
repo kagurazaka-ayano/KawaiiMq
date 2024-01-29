@@ -8,7 +8,7 @@
 #include "Topic.h"
 
 
-namespace messaging{
+namespace KawaiiMQ{
 
 
     Topic::Topic(std::string name): name(std::move(name)) {
@@ -38,6 +38,6 @@ namespace messaging{
     }
 
 }
-std::size_t std::hash<messaging::Topic>::operator()(const messaging::Topic &topic) const  {
+std::size_t std::hash<KawaiiMQ::Topic>::operator()(const KawaiiMQ::Topic &topic) const  {
     return (std::hash<string>()(topic.getName()) << 1) ^ (std::hash<string>()(topic.getName()) >> 1);
 }

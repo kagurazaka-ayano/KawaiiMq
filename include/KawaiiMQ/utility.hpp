@@ -12,7 +12,7 @@
 #include <type_traits>
 #include <chrono>
 
-namespace messaging{
+namespace KawaiiMQ{
 
     /**
      * A utility function to check if a type is derived from a template, do not need template specialization

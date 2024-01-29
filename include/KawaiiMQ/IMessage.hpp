@@ -9,7 +9,7 @@
 #define KAWAIIMQ_IMESSAGE_HPP
 #include <string>
 
-namespace messaging {
+namespace KawaiiMQ {
     /**
      * Interface that all messages should composite
      * @tparam T type of content this message contains
@@ -45,7 +45,7 @@ namespace messaging {
     /*
      * A specialized message that contains a string
      */
-    class StringMessage : public messaging::IMessage<std::string> {
+    class StringMessage : public KawaiiMQ::IMessage<std::string> {
     public:
         StringMessage(const std::string &content): content(content) {
 
@@ -74,7 +74,7 @@ namespace messaging {
     /*
      * A specialized message that contains an int
      */
-    class IntMessage : public messaging::IMessage<int> {
+    class IntMessage : public KawaiiMQ::IMessage<int> {
     public:
         IntMessage(int content): content(content) {
 
@@ -99,7 +99,7 @@ namespace messaging {
     /*
      * A specialized message that contains a double
      */
-    class DoubleMessage : public messaging::IMessage<double> {
+    class DoubleMessage : public KawaiiMQ::IMessage<double> {
     public:
         DoubleMessage(double content): content(content) {
 

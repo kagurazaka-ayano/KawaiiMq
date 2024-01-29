@@ -17,9 +17,9 @@
 #include "IMessage.hpp"
 #include "utility.hpp"
 /**
- * messaging namespace
+ * KawaiiMQ namespace
  */
-namespace messaging {
+namespace KawaiiMQ {
 
 
     using mtxguard = std::lock_guard<std::mutex>;

@@ -13,7 +13,7 @@
 #include <vector>
 #include "Queue.hpp"
 
-namespace messaging{
+namespace KawaiiMQ{
 
     class Topic {
     public:
@@ -32,8 +32,8 @@ namespace messaging{
     };
 }
 template<>
-struct std::hash<messaging::Topic>{
-    std::size_t operator()(const messaging::Topic& topic) const;
+struct std::hash<KawaiiMQ::Topic>{
+    std::size_t operator()(const KawaiiMQ::Topic& topic) const;
 };
 
 

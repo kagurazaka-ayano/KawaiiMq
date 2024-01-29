@@ -12,7 +12,7 @@
 #include "IMessage.hpp"
 #include "MessageQueueManager.hpp"
 
-namespace messaging {
+namespace KawaiiMQ {
     /**
      * Producer is a class that can publish message to a topic
      * @tparam T type of message this consumer accepts

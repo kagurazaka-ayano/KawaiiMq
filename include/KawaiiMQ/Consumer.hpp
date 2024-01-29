@@ -16,7 +16,7 @@
 #include "utility.hpp"
 #include "MessageQueueManager.hpp"
 
-namespace messaging {
+namespace KawaiiMQ {
     /**
      * The client of the message queue
      * @remark A client is a user of the message queue system. It can subscribe to multiple topics and fetch messages from topics.
@@ -100,7 +100,7 @@ namespace messaging {
 
     template<typename T>
     requires DerivedFromTemplate<IMessage, T>
-    messaging::Consumer<T>::Consumer(std::vector <Topic> topics) : subscribed(std::move(topics)) {
+    KawaiiMQ::Consumer<T>::Consumer(std::vector <Topic> topics) : subscribed(std::move(topics)) {
 
     }
 
@@ -131,6 +131,6 @@ namespace messaging {
         }
     }
 
-} // messaging
+} // KawaiiMQ
 
 #endif //KAWAIIMQ_CONSUMER_HPP

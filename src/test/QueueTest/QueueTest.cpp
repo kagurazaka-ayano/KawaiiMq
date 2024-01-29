@@ -12,7 +12,7 @@
 #include <string>
 #include <chrono>
 
-using namespace messaging;
+using namespace KawaiiMQ;
 
 TEST(QueueTest, HighDataFlowWithConcurrentAccess) {
     Queue<IntMessage> queue;

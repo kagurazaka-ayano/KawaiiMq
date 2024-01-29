@@ -11,7 +11,7 @@
 #include <thread>
 #include <future>
 
-using namespace messaging;
+using namespace KawaiiMQ;
 
 TEST(ProducerTest, SubscribeToNewTopic) {
     Producer<IntMessage> producer;

@@ -15,7 +15,7 @@
 #include "Queue.hpp"
 
 
-namespace messaging {
+namespace KawaiiMQ {
 
     /**
      * a singleton for the given message type
