@@ -2,6 +2,8 @@
 
 A simple message queue implementation
 
+Checkout [Examples](./doc/examples.md) for usage
+
 ## Build
 
 Building tool: CMake
@@ -21,5 +23,10 @@ ctest
 ```
 in build directory
 
-to build documentation, run `./scripts/makeDoc.sh`
+> Some tests are testing for timeout, which could take a long time to run, wait at least 20 seconds for each test.
+
+to build documentation, run 
+```bash
+./scripts/makeDoc.sh
+```
 

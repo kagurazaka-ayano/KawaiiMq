@@ -79,4 +79,20 @@ namespace KawaiiMQ{
             thread.join();
         }
     }
+
+    int main() {
+        KawaiiMQ::Queue queue;
+        KawaiiMQ::Topic topic("topic1");
+        KawaiiMQ::MessageQueueManager::Instance()->relate(topic, queue);
+        KawaiiMQ::Producer producer;
+        producer.subscribe(topic);
+        auto message = KawaiiMQ::makeMessage(0);
+        producer.publishMessage(topic, message);
+        auto consumer = KawaiiMQ::Consumer({topic});
+        auto messages = consumer.fetchMessage();
+        std::cout << getMessage<int>(messages[topic][0]) << std::endl;
+        KawaiiMQ::MessageQueueManager::Instance()->unrelate(topic, queue);
+        consumer.unsubscribe(topic);
+        producer.unsubscribe(topic);
+    }
 }

@@ -72,11 +72,4 @@ namespace KawaiiMQ {
         return ret;
     }
 
-
-
-
-
-
-
-
 }
