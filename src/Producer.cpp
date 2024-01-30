@@ -34,6 +34,6 @@ namespace KawaiiMQ {
         if (std::find(subscribed.begin(), subscribed.end(),topic) == subscribed.end()) {
             throw TopicException("topic not subscribed");
         }
-        std::remove(subscribed.begin(), subscribed.end(), topic);
+        subscribed.erase(std::remove(subscribed.begin(), subscribed.end(), topic));
     }
 }

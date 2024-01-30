@@ -64,6 +64,7 @@ namespace KawaiiMQ {
             for (const auto& topic: subscribed) {
                 auto queues = manager->getAllRelatedQueue(topic);
                 for(auto& queue : queues) {
+                    std::cout << "pushed message" << std::endl;
                     queue.get().push(std::move(message));
                 }
             }

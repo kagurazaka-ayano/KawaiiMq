@@ -17,12 +17,10 @@ namespace KawaiiMQ {
 
 
     std::size_t Queue::size() const noexcept {
-        mtxshared lock(mtx);
         return queue.size();
     }
 
     bool Queue::empty() const noexcept {
-        mtxshared lock(mtx);
         return queue.empty();
     }
 
