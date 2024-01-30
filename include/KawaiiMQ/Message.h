@@ -17,24 +17,30 @@ namespace KawaiiMQ {
     public:
         virtual ~ISerializable() = default;
 
+        /**
+         * serialize the object
+         * @return serialized string
+         */
         virtual std::string serialize() const = 0;
 
+        /**
+         * deserialize the object
+         * @param data serialized data
+         */
         virtual void deserialize(const std::string &data) = 0;
     };
 
-    class MessageData : public ISerializable {
+    class MessageData {
     public:
+        MessageData() = default;
         virtual ~MessageData() = default;
     };
 
-    template<typename T> requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>
-    class Message {
+    template<typename T>
+    requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>
+    class Message : public MessageData {
     public:
         explicit Message(T content) : content(std::move(content)) {}
-
-        T getContent() const {
-            return content;
-        }
 
         void setContent(T content) {
             this->content = std::move(content);
@@ -42,18 +48,22 @@ namespace KawaiiMQ {
 
         template<typename U>
         requires std::is_base_of_v<ISerializable, U> || std::is_fundamental_v<U>
-        U getMessage(std::shared_ptr<MessageData> in) {
-            std::shared_ptr<Message<T>> tmp = std::dynamic_pointer_cast<Message<T>>(in);
-            if (tmp) {
-                return tmp->val;
-            }
-            throw TypeException(
-                    "Expected type " + std::string(typeid(T).name()) + ", got " + std::string(typeid(in).name()));
-        }
+        friend U getMessage(std::shared_ptr<MessageData> in);
 
     private:
         T content;
     };
+
+    template<typename T>
+    requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>
+    T getMessage(std::shared_ptr<MessageData> in) {
+        std::shared_ptr<Message<T>> tmp = std::dynamic_pointer_cast<Message<T>>(in);
+        if (tmp != nullptr) {
+            return tmp->content;
+        }
+        throw TypeException(
+                "Expected type " + std::string(typeid(T).name()) + ", got " + std::string(typeid(in).name()));
+    }
 
     template<typename T>
     requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>

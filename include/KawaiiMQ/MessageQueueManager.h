@@ -54,6 +54,7 @@ namespace KawaiiMQ {
          * get all queues related to the topic
          * @param topic given topic
          * @return all queues related to the topic
+         * @exception TopicException if the topic is not related to any queue
          */
         std::vector<std::reference_wrapper<Queue>> getAllRelatedQueue(const Topic& topic) const;
 
@@ -81,7 +82,7 @@ namespace KawaiiMQ {
 #ifdef TEST
         /**
          * flush all queues and topics
-         * @remark this function is for testing only
+         * @remark this function is for testing only so I marked it
          * @warning this function will clear all queues and topics
          * @warning DO NOT USE THIS FUNCTION IN PRODUCTION
          */

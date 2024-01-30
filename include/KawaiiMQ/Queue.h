@@ -49,8 +49,7 @@ namespace KawaiiMQ {
          * Wait for the result when called. Will pop the message if notified.
          * @return a std::shared_ptr containing message
          */
-        template<MessageType T>
-        std::shared_ptr<T> wait();
+        std::shared_ptr<MessageData> wait();
 
 
         /**
@@ -99,32 +98,12 @@ namespace KawaiiMQ {
     private:
         static std::shared_mutex mtx;
         std::queue<std::shared_ptr<MessageData>> queue;
-        mutable std::condition_variable cond;
+        mutable std::condition_variable_any cond;
         std::string name;
         int timeout_ms = 0;
         int safe_timeout_ms = 5000;
-        std::condition_variable_any safe_cond;
+        mutable std::condition_variable_any safe_cond;
     };
-
-    template<MessageType T>
-    std::shared_ptr<T> Queue::wait() {
-        std::unique_lock lock(mtx);
-        if (timeout_ms == 0) {
-            cond.wait(lock, [this](){return !queue.empty();});
-        }
-        else {
-            cond.wait_for(lock, std::chrono::milliseconds(timeout_ms), [this](){return !queue.empty();});
-            if(queue.empty()) {
-                throw QueueException("queue fetch timeout");
-            }
-        }
-        auto ret = std::make_shared<T>(std::move(queue.front()));
-        queue.pop();
-        if (queue.empty()) {
-            safe_cond.notify_all();
-        }
-        return ret;
-    }
 
     template<MessageType T>
     void Queue::push(const std::shared_ptr<T>& msg) {
@@ -136,7 +115,7 @@ namespace KawaiiMQ {
     template<MessageType T>
     void Queue::push(std::shared_ptr<T> &&msg) noexcept {
         mtxsharedguard lock(mtx);
-        queue.push(std::forward(msg));
+        queue.push(msg);
         cond.notify_one();
     }
 

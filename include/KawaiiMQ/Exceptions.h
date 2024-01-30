@@ -13,7 +13,6 @@
 
 namespace KawaiiMQ {
 
-
     class QueueException : public std::exception {
     public:
         explicit QueueException(const std::string& message);

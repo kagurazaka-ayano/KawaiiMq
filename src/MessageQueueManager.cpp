@@ -29,7 +29,7 @@ namespace KawaiiMQ {
 
     void MessageQueueManager::unrelate(const Topic &topic, Queue &queue) {
         std::unique_lock lock(mtx);
-        while(queue.getSafeCond().wait_for(lock, std::chrono::milliseconds(queue.getSafeTimeout()), [&queue](){return queue.empty();}));
+        queue.getSafeCond().wait_for(lock, std::chrono::milliseconds(queue.getSafeTimeout()), [&queue](){return !queue.empty();});
         if (std::find_if(topic_map[topic].begin(), topic_map[topic].end(), [&queue](const Queue& q) {
             return &q == &queue;
         }) != topic_map[topic].end()) {
@@ -51,7 +51,7 @@ namespace KawaiiMQ {
             return topic_map.at(topic);
         }
         catch (std::out_of_range& e) {
-            throw TopicException("Topic " + topic.getName() + " didn't relate to any queue");
+            throw TopicException("Topic " + topic.getName() + " is not related to any queue");
         }
 
     }
@@ -65,9 +65,9 @@ namespace KawaiiMQ {
     std::vector<Topic> MessageQueueManager::getRelatedTopic() const {
         std::shared_lock lock(mtx);
         std::vector<Topic> ret;
-        ret.reserve(topic_map.size());
-        for(const auto& i : topic_map) {
-            ret.push_back(i.first);
+        ret.reserve(related_topic.size());
+        for(const auto& i : related_topic) {
+            ret.push_back(i.second);
         }
         return ret;
     }
@@ -78,7 +78,6 @@ namespace KawaiiMQ {
     }
 
 #ifdef TEST
-
     void MessageQueueManager::flush() {
         std::lock_guard lock(mtx);
         topic_map.clear();

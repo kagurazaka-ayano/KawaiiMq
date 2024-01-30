@@ -36,10 +36,11 @@ namespace KawaiiMQ {
         }
     }
 
-    std::unordered_map<Topic, std::vector<std::shared_ptr<MessageData>>> Consumer::fetchMessage() {
+    template<MessageType T>
+    std::unordered_map<Topic, std::vector<std::shared_ptr<T>>> Consumer::fetchMessage() {
         std::lock_guard<std::mutex> lock(mtx);
         auto manager = MessageQueueManager::Instance();
-        std::unordered_map<Topic, std::vector<std::shared_ptr<MessageData>>> ret;
+        std::unordered_map<Topic, std::vector<std::shared_ptr<T>>> ret;
         for(const auto& i : subscribed) {
             auto queue = manager->getAllRelatedQueue(i);
             for(auto& j : queue) {
@@ -52,14 +53,14 @@ namespace KawaiiMQ {
         return ret;
     }
 
-
-    std::vector<std::shared_ptr<MessageData>> Consumer::fetchSingleTopic(const Topic &topic) {
+    template<MessageType T>
+    std::vector<std::shared_ptr<T>> Consumer::fetchSingleTopic(const Topic &topic) {
         if(std::find(subscribed.begin(), subscribed.end(), topic) == subscribed.end()) {
             throw TopicException("topic not subscribed");
         }
         std::lock_guard<std::mutex> lock(mtx);
         auto manager = MessageQueueManager::Instance();
-        std::vector<std::shared_ptr<MessageData>> ret;
+        std::vector<std::shared_ptr<T>> ret;
         auto queue = manager->getAllRelatedQueue(topic);
         for (auto &j : queue) {
             if (j.get().empty()) {

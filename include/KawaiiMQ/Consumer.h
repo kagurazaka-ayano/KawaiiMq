@@ -43,14 +43,16 @@ namespace KawaiiMQ {
          * fetch all messages from subscribed topics
          * @return all messages from subscribed topics
          */
-        std::unordered_map<Topic, std::vector<std::shared_ptr<MessageData>>> fetchMessage();
+        template<MessageType T>
+        std::unordered_map<Topic, std::vector<std::shared_ptr<T>>> fetchMessage();
 
         /**
          * fetch all messages from a single topic
          * @param topic given topic
          * @return all messages from the topic
          */
-        std::vector<std::shared_ptr<MessageData>> fetchSingleTopic(const Topic& topic);
+        template<MessageType T>
+        std::vector<std::shared_ptr<T>> fetchSingleTopic(const Topic& topic);
 
     private:
         std::mutex mtx;

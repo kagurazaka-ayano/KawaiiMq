@@ -7,3 +7,7 @@
 
 #include "kawaiiMQ.h"
 #include "gtest/gtest.h"
+
+namespace KawaiiMQ {
+
+}

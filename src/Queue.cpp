@@ -75,4 +75,24 @@ namespace KawaiiMQ {
     std::condition_variable_any &Queue::getSafeCond() noexcept {
         return safe_cond;
     }
+
+    std::shared_ptr<MessageData> Queue::wait() {
+        std::unique_lock lock(mtx);
+        if (timeout_ms == 0) {
+            cond.wait(lock, [this](){return !queue.empty();});
+        }
+        else {
+            cond.wait_for(lock, std::chrono::milliseconds(timeout_ms), [this](){return !queue.empty();});
+            if(queue.empty()) {
+                throw QueueException("queue fetch timeout");
+            }
+        }
+        auto ret = queue.front();
+        queue.pop();
+        if (queue.empty()) {
+            safe_cond.notify_all();
+        }
+        return ret;
+    }
+
 }
