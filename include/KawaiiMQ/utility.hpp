@@ -19,7 +19,7 @@ namespace KawaiiMQ{
     concept MessageType = requires(C c) {
         // IILE, that only binds to A<...> specialisations
         // Including classes derived from them
-        []<typename X>(MessageData<X>&){}(c);
+        []<typename X>(Message<X>&){}(c);
     };
 
 }

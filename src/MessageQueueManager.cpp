@@ -77,7 +77,7 @@ namespace KawaiiMQ {
         return topic_map.find(topic) != topic_map.end();
     }
 
-#ifdef KAWAIIMQ_TEST
+#ifdef TEST
 
     void MessageQueueManager::flush() {
         std::lock_guard lock(mtx);

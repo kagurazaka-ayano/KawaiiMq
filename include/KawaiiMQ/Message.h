@@ -16,8 +16,10 @@ namespace KawaiiMQ {
     class ISerializable {
     public:
         virtual ~ISerializable() = default;
+
         virtual std::string serialize() const = 0;
-        virtual void deserialize(const std::string& data) = 0;
+
+        virtual void deserialize(const std::string &data) = 0;
     };
 
     class MessageData : public ISerializable {
@@ -25,8 +27,7 @@ namespace KawaiiMQ {
         virtual ~MessageData() = default;
     };
 
-    template<typename T>
-    requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>
+    template<typename T> requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>
     class Message {
     public:
         explicit Message(T content) : content(std::move(content)) {}
@@ -46,8 +47,10 @@ namespace KawaiiMQ {
             if (tmp) {
                 return tmp->val;
             }
-            throw "Incorrect type!";
+            throw TypeException(
+                    "Expected type " + std::string(typeid(T).name()) + ", got " + std::string(typeid(in).name()));
         }
+
     private:
         T content;
     };
@@ -55,6 +58,8 @@ namespace KawaiiMQ {
     template<typename T>
     requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>
     std::shared_ptr<Message<T>> makeMessage(T content) {
+        auto msg = std::make_shared<Message<T>>(content);
+        return msg;
+    }
 }
-
 #endif //KAWAIIMQ_MESSAGE_H
