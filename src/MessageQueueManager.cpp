@@ -29,7 +29,7 @@ namespace KawaiiMQ {
 
     void MessageQueueManager::unrelate(const Topic &topic, Queue &queue) {
         std::unique_lock lock(mtx);
-        queue.getSafeCond().wait(lock, [&queue](){return queue.empty();});
+        while(queue.getSafeCond().wait_for(lock, std::chrono::milliseconds(queue.getSafeTimeout()), [&queue](){return queue.empty();}));
         if (std::find_if(topic_map[topic].begin(), topic_map[topic].end(), [&queue](const Queue& q) {
             return &q == &queue;
         }) != topic_map[topic].end()) {

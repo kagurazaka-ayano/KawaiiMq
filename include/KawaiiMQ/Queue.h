@@ -120,6 +120,9 @@ namespace KawaiiMQ {
         }
         auto ret = std::make_shared<T>(std::move(queue.front()));
         queue.pop();
+        if (queue.empty()) {
+            safe_cond.notify_all();
+        }
         return ret;
     }
 
@@ -128,13 +131,12 @@ namespace KawaiiMQ {
         mtxsharedguard lock(mtx);
         queue.push(msg);
         cond.notify_one();
-        safe_cond.notify_one();
     }
 
     template<MessageType T>
     void Queue::push(std::shared_ptr<T> &&msg) noexcept {
         mtxsharedguard lock(mtx);
-        queue.push(msg);
+        queue.push(std::forward(msg));
         cond.notify_one();
     }
 

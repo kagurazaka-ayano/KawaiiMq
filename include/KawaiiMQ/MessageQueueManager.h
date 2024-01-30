@@ -18,15 +18,13 @@
 namespace KawaiiMQ {
 
     /**
-     * a singleton for the given message type
-     * @tparam T type of content this message contain
+     * a singleton for managing the message queue
      */
     class MessageQueueManager {
     public:
+
         MessageQueueManager &operator=(const MessageQueueManager &other) = delete;
-
         MessageQueueManager(const MessageQueueManager &other) = delete;
-
         MessageQueueManager(MessageQueueManager &&other) = delete;
 
         /**
@@ -39,6 +37,7 @@ namespace KawaiiMQ {
          * relate a queue to a topic
          * @param topic topic you want to relate
          * @param queue queue you want to relate
+         * @exception TopicException if the topic is already related to the queue
          */
         void relate(const Topic& topic, Queue &queue);
 
@@ -46,6 +45,8 @@ namespace KawaiiMQ {
          * unrelate a queue from a topic
          * @param topic topic you want to unrelate
          * @param queue queue you want to unrelate
+         * @exception TopicException if the topic is not related to the queue
+         * @remark this function will wait until the queue is empty
          */
         void unrelate(const Topic& topic, Queue& queue);
 
@@ -68,7 +69,7 @@ namespace KawaiiMQ {
          * @param queue queue given
          * @return true if related, false otherwise
          */
-        bool isRelated(const Topic& topic, const Queue<T>& queue);
+        bool isRelated(const Topic& topic, const Queue& queue);
 
         /**
          * check if a topic is related to any queue
@@ -89,7 +90,7 @@ namespace KawaiiMQ {
     private:
         MessageQueueManager() = default;
         mutable std::shared_mutex mtx;
-        std::unordered_map<Topic, std::vector<std::reference_wrapper<Queue<T>>>> topic_map;
+        std::unordered_map<Topic, std::vector<std::reference_wrapper<Queue>>> topic_map;
         std::unordered_map<std::string, Topic> related_topic;
     };
 }
