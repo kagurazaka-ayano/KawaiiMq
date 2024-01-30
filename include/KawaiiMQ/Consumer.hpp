@@ -12,7 +12,7 @@
 #include <iostream>
 #include <algorithm>
 #include "Topic.h"
-#include "IMessage.hpp"
+#include "Message.h"
 #include "utility.hpp"
 #include "MessageQueueManager.hpp"
 

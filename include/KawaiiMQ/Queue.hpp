@@ -14,7 +14,7 @@
 #include <iostream>
 #include <utility>
 #include <limits>
-#include "IMessage.hpp"
+#include "Message.h"
 #include "utility.hpp"
 /**
  * KawaiiMQ namespace

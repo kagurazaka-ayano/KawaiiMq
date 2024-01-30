@@ -9,7 +9,7 @@
 #define KAWAIIMQ_PRODUCER_HPP
 
 #include "Topic.h"
-#include "IMessage.hpp"
+#include "Message.h"
 #include "MessageQueueManager.hpp"
 
 namespace KawaiiMQ {
