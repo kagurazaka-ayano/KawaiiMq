@@ -7,11 +7,11 @@
 
 #ifndef KAWAIIMQ_KAWAIIMQ_H
 #define KAWAIIMQ_KAWAIIMQ_H
-#include "IMessage.hpp"
-#include "Consumer.hpp"
-#include "Producer.hpp"
-#include "MessageQueueManager.hpp"
-#include "Queue.hpp"
+#include "Message.h"
+#include "Consumer.h"
+#include "Producer.h"
+#include "MessageQueueManager.h"
+#include "Queue.h"
 #include "Topic.h"
 #include "utility.hpp"
 

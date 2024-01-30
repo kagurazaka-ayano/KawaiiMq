@@ -11,35 +11,16 @@
 
 #include <type_traits>
 #include <chrono>
+#include "Message.h"
 
 namespace KawaiiMQ{
 
-    /**
-     * A utility function to check if a type is derived from a template, do not need template specialization
-     * @tparam Base Base class you want to match
-     * @tparam Derived Derived class you want to check
-     */
-    template<template<typename...> class Base, typename Derived>
-    struct IsDerivedFromTemplate {
-        template<typename... Args>
-        static constexpr bool Test(const Base<Args...> *) {
-            return std::is_base_of<Base<Args...>, Derived>::value;
-        }
-
-        static constexpr bool Test(...) {
-            return false;
-        }
-
-        static constexpr bool value = Test(static_cast<Derived *>(nullptr));
+    template <class C>
+    concept MessageType = requires(C c) {
+        // IILE, that only binds to A<...> specialisations
+        // Including classes derived from them
+        []<typename X>(Message<X>&){}(c);
     };
-
-    /**
-     * associated type of IsDerivedFromTemplate
-     * @tparam Base Base class you want to match
-     * @tparam Derived Derived class you want to check
-     */
-    template<template<typename...> class Base, typename Derived>
-    concept DerivedFromTemplate = IsDerivedFromTemplate<Base, Derived>::value;
 
 }
 

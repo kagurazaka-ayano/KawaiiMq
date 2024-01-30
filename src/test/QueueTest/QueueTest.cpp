@@ -5,83 +5,83 @@
  * @brief
 */
 
-#include "Queue.hpp"
-#include "IMessage.hpp"
+#include "Queue.h"
+#include "Message.h"
 #include "gtest/gtest.h"
 #include <thread>
 #include <string>
 #include <chrono>
 
-using namespace KawaiiMQ;
-
-TEST(QueueTest, HighDataFlowWithConcurrentAccess) {
-    Queue<IntMessage> queue;
-    const int dataFlow = 10000;
-    std::vector<IntMessage> messages;
-    for (int i = 0; i < dataFlow; ++i) {
-        messages.push_back(IntMessage(i));
+namespace KawaiiMQ {
+    TEST(QueueTest, PushIncreasesSize) {
+        Queue queue("test");
+        auto m = makeMessage(0);
+        queue.push(m);
+        ASSERT_EQ(queue.size(), 1);
     }
 
-    std::thread producer([&]() {
-        for (const auto& message : messages) {
-            queue.push(message);
-        }
-    });
+    TEST(QueueTest, WaitDecreasesSize) {
+        Queue queue("test");
+        auto m = makeMessage(0);
+        queue.push(m);
+        queue.wait();
+        ASSERT_EQ(queue.size(), 0);
+    }
 
-    std::vector<IntMessage> fetchedMessages;
-    std::thread consumer([&]() {
-        for (int i = 0; i < dataFlow; ++i) {
-            fetchedMessages.push_back(*queue.wait());
-        }
-    });
+    TEST(QueueTest, WaitReturnsPushedMessage) {
+        Queue queue("test");
+        auto m = makeMessage(0);
+        queue.push(m);
+        ASSERT_EQ(queue.wait(), m);
+    }
 
-    producer.join();
-    consumer.join();
+    TEST(QueueTest, EmptyReturnsTrueWhenQueueIsEmpty) {
+        Queue queue("test");
+        ASSERT_TRUE(queue.empty());
+    }
 
-    ASSERT_EQ(fetchedMessages.size(), dataFlow);
-    for (int i = 0; i < dataFlow; ++i) {
-        ASSERT_EQ(fetchedMessages[i].getContent(), i);
+    TEST(QueueTest, EmptyReturnsFalseWhenQueueIsNotEmpty) {
+        Queue queue("test");
+        auto m = makeMessage(0);
+        queue.push(m);
+        ASSERT_FALSE(queue.empty());
+    }
+
+    TEST(QueueTest, SingleThreadHighVolumePushAndMultipleThreadsWaiting) {
+        Queue queue("test");
+        std::thread t1([&]() {
+            for (int i = 0; i < 1000; ++i) {
+                queue.push(makeMessage(i));
+            }
+        });
+
+        std::thread t2([&]() { for (int i = 0; i < 500; ++i) queue.wait(); });
+        std::thread t3([&]() { for (int i = 0; i < 500; ++i) queue.wait(); });
+
+        t1.join();
+        t2.join();
+        t3.join();
+
+        ASSERT_EQ(queue.size(), 0);
+    }
+
+    TEST(QueueTest, MultipleThreadsPushingAndSingleThreadWaiting) {
+        Queue queue("test");
+
+        std::thread t1([&]() { for (int i = 0; i < 500; ++i) queue.push(makeMessage(i)); });
+        std::thread t2([&]() { for (int i = 0; i < 500; ++i) queue.push(makeMessage(i)); });
+
+        std::thread t3([&]() {
+            for (int i = 0; i < 1000; ++i) {
+                queue.wait();
+            }
+        });
+
+        t1.join();
+        t2.join();
+        t3.join();
+
+        ASSERT_EQ(queue.size(), 0);
     }
 }
 
-TEST(QueueTest, HighDataFlowWithMultipleProducersAndConsumers) {
-    Queue<IntMessage> queue;
-    const int dataFlow = 10000;
-    std::vector<IntMessage> messages;
-    for (int i = 0; i < dataFlow; ++i) {
-        messages.push_back(IntMessage(i));
-    }
-
-    std::thread producer1([&]() {
-        for (const auto& message : messages) {
-            queue.push(message);
-        }
-    });
-
-    std::thread producer2([&]() {
-        for (const auto& message : messages) {
-            queue.push(message);
-        }
-    });
-
-    std::vector<IntMessage> fetchedMessages1;
-    std::thread consumer1([&]() {
-        for (int i = 0; i < dataFlow; ++i) {
-            fetchedMessages1.push_back(*queue.wait());
-        }
-    });
-
-    std::vector<IntMessage> fetchedMessages2;
-    std::thread consumer2([&]() {
-        for (int i = 0; i < dataFlow; ++i) {
-            fetchedMessages2.push_back(*queue.wait());
-        }
-    });
-
-    producer1.join();
-    producer2.join();
-    consumer1.join();
-    consumer2.join();
-
-    ASSERT_EQ(fetchedMessages1.size() + fetchedMessages2.size(), 2 * dataFlow);
-}

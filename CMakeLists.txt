@@ -11,6 +11,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+if (${TEST}=ON)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTEST")
+endif()
+
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -33,21 +37,23 @@ include(GoogleTest)
 enable_testing()
 file(GLOB OperatorTest "./src/test/OperatorTest/*.cpp")
 add_executable(OperatorTest ${OperatorTest} ${SRC})
-target_link_libraries(OperatorTest PRIVATE gmock_main)
+target_link_libraries(OperatorTest PRIVATE gtest_main gmock_main)
 add_test(NAME OperatorTest COMMAND OperatorTest)
 gtest_discover_tests(OperatorTest)
+target_compile_definitions(OperatorTest PRIVATE -DTEST)
 
 file(GLOB QueueTest "./src/test/QueueTest/*.cpp")
 add_executable(QueueTest ${QueueTest} ${SRC})
-target_link_libraries(QueueTest PRIVATE gmock_main)
+target_link_libraries(QueueTest PRIVATE gtest_main gmock_main)
 add_test(NAME QueueTest COMMAND QueueTest)
 gtest_discover_tests(QueueTest)
+target_compile_definitions(QueueTest PRIVATE -DTEST)
 
 file(GLOB ManagerTest "./src/test/ManagerTest/*.cpp")
 add_executable(ManagerTest ${ManagerTest} ${SRC})
-target_link_libraries(ManagerTest PRIVATE gmock_main)
+target_link_libraries(ManagerTest PRIVATE gtest_main gmock_main)
 add_test(NAME ManagerTest COMMAND ManagerTest)
 gtest_discover_tests(ManagerTest)
+target_compile_definitions(ManagerTest PRIVATE -DTEST)
 
-# package for fetch content
 

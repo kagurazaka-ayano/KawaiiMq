@@ -11,7 +11,7 @@
 
 #include <string>
 #include <vector>
-#include "Queue.hpp"
+#include "Queue.h"
 
 namespace KawaiiMQ{
 
