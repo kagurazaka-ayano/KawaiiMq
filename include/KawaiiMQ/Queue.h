@@ -97,7 +97,7 @@ namespace KawaiiMQ {
 
         std::string getName() const;
 
-        std::queue<std::shared_ptr<MessageData>> getElement() const;
+        std::queue<std::shared_ptr<MessageData>> getElements() const;
 
     private:
         static std::shared_mutex mtx;
