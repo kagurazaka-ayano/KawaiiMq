@@ -54,6 +54,10 @@ namespace KawaiiMQ {
          */
         std::vector<std::shared_ptr<MessageData>> fetchSingleTopic(const Topic& topic);
 
+        std::string getName() const;
+
+        std::vector<Topic> getSubscribedTopics() const;
+
     private:
         std::mutex mtx;
         std::string name;

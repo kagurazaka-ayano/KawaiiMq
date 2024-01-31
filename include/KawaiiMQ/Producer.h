@@ -75,6 +75,8 @@ namespace KawaiiMQ {
         std::string getName() const {
             return name;
         }
+
+        std::vector<Topic> getSubscribedTopics() const;
     private:
         std::vector<Topic> subscribed;
         std::mutex mtx;

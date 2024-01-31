@@ -76,4 +76,12 @@ namespace KawaiiMQ {
 
     }
 
+    std::string Consumer::getName() const {
+        return name;
+    }
+
+    std::vector<Topic> Consumer::getSubscribedTopics() const {
+        return subscribed;
+    }
+
 }
