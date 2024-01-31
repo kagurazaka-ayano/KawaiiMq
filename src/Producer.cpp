@@ -44,4 +44,8 @@ namespace KawaiiMQ {
     std::vector<Topic> Producer::getSubscribedTopics() const {
         return subscribed;
     }
+
+    std::string Producer::getName() const {
+        return name;
+    }
 }

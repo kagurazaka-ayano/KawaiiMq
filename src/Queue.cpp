@@ -97,8 +97,5 @@ namespace KawaiiMQ {
         return name;
     }
 
-    std::queue<std::shared_ptr<MessageData>> Queue::getElements() const {
-        return queue;
-    }
 
 }

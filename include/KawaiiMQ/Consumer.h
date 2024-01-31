@@ -54,8 +54,16 @@ namespace KawaiiMQ {
          */
         std::vector<std::shared_ptr<MessageData>> fetchSingleTopic(const Topic& topic);
 
+        /**
+         * get the name of the consumer
+         * @return name of the consumer
+         */
         std::string getName() const;
 
+        /**
+         * get all subscribed topics
+         * @return all subscribed topic, in a vector
+         */
         std::vector<Topic> getSubscribedTopics() const;
 
     private:

@@ -72,10 +72,16 @@ namespace KawaiiMQ {
             }
         }
 
-        std::string getName() const {
-            return name;
-        }
+        /**
+         * get the name of the producer
+         * @return name of the producer
+         */
+        std::string getName() const;
 
+        /**
+         * get all subscribed topics
+         * @return all subscribed topic, in a vector
+         */
         std::vector<Topic> getSubscribedTopics() const;
     private:
         std::vector<Topic> subscribed;

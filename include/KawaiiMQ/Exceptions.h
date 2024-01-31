@@ -13,6 +13,9 @@
 
 namespace KawaiiMQ {
 
+    /**
+     * queue related exceptions
+     */
     class QueueException : public std::exception {
     public:
         explicit QueueException(const std::string& message);
@@ -21,6 +24,9 @@ namespace KawaiiMQ {
         std::string message;
     };
 
+    /**
+     * topic related exceptions
+     */
     class TopicException : public std::exception {
     public:
         explicit TopicException(const std::string& message);
@@ -29,6 +35,9 @@ namespace KawaiiMQ {
         std::string message;
     };
 
+    /**
+     * type related exceptions
+     */
     class TypeException : public std::exception {
     public:
         explicit TypeException(const std::string& message);

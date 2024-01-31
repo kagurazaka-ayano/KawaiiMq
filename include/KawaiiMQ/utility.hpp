@@ -15,10 +15,12 @@
 
 namespace KawaiiMQ{
 
+    /**
+     * A concept that checks if a type is a message
+     * @tparam C
+     */
     template <class C>
     concept MessageType = requires(C c) {
-        // IILE, that only binds to A<...> specialisations
-        // Including classes derived from them
         []<typename X>(Message<X>&){}(c);
     };
 

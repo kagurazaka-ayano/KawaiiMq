@@ -87,17 +87,36 @@ namespace KawaiiMQ {
          */
         void setTimeout(int timeout_ms) noexcept;
 
+        /**
+         * Get timeout for wait()
+         * @return timeout in milliseconds
+         */
         int getTimeout() const noexcept;
 
+        /**
+         * Set the timeout time of the safely unrelate queue
+         * @param timeout_ms timeout time in milliseconds
+         */
         void setSafeTimeout(int timeout_ms) noexcept;
 
+        /**
+         * Get the timeout time of the safely unrelate queue
+         * @return timeout time in milliseconds
+         */
         int getSafeTimeout() const noexcept;
 
+        /**
+         * Get the condition variable for safe timeout
+         * @return condition variable for safe timeout
+         */
         std::condition_variable_any& getSafeCond() noexcept;
 
+        /**
+         * Get the name of the queue
+         * @return name of the queue
+         */
         std::string getName() const;
 
-        std::queue<std::shared_ptr<MessageData>> getElements() const;
 
     private:
         static std::shared_mutex mtx;
