@@ -17,6 +17,8 @@ namespace KawaiiMQ {
 
     class Producer {
     public:
+        explicit Producer(const std::string &name);
+
         /**
          * subscribe to a topic
          * @param topic topic you want to subscribe
@@ -69,9 +71,14 @@ namespace KawaiiMQ {
                 }
             }
         }
+
+        std::string getName() const {
+            return name;
+        }
     private:
         std::vector<Topic> subscribed;
         std::mutex mtx;
+        std::string name;
     };
 }
 

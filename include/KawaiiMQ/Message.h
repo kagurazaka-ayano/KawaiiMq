@@ -13,23 +13,6 @@
 
 namespace KawaiiMQ {
 
-    class ISerializable {
-    public:
-        virtual ~ISerializable() = default;
-
-        /**
-         * serialize the object
-         * @return serialized string
-         */
-        virtual std::string serialize() const = 0;
-
-        /**
-         * deserialize the object
-         * @param data serialized data
-         */
-        virtual void deserialize(const std::string &data) = 0;
-    };
-
     class MessageData {
     public:
         MessageData() = default;
@@ -37,7 +20,6 @@ namespace KawaiiMQ {
     };
 
     template<typename T>
-    requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>
     class Message : public MessageData {
     public:
         explicit Message(T content) : content(std::move(content)) {}
@@ -47,7 +29,6 @@ namespace KawaiiMQ {
         }
 
         template<typename U>
-        requires std::is_base_of_v<ISerializable, U> || std::is_fundamental_v<U>
         friend U getMessage(std::shared_ptr<MessageData> in);
 
     private:
@@ -55,7 +36,6 @@ namespace KawaiiMQ {
     };
 
     template<typename T>
-    requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>
     T getMessage(std::shared_ptr<MessageData> in) {
         std::shared_ptr<Message<T>> tmp = std::dynamic_pointer_cast<Message<T>>(in);
         if (tmp != nullptr) {
@@ -66,7 +46,6 @@ namespace KawaiiMQ {
     }
 
     template<typename T>
-    requires std::is_base_of_v<ISerializable, T> || std::is_fundamental_v<T>
     std::shared_ptr<Message<T>> makeMessage(T content) {
         auto msg = std::make_shared<Message<T>>(content);
         return msg;

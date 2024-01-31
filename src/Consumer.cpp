@@ -72,4 +72,8 @@ namespace KawaiiMQ {
         return ret;
     }
 
+    Consumer::Consumer(const std::string &name): name(name) {
+
+    }
+
 }

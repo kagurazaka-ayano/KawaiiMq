@@ -27,6 +27,8 @@ namespace KawaiiMQ {
 
         explicit Consumer(std::vector<Topic> topics);
 
+        explicit Consumer(const std::string& name);
+
         /**
          * subscribe a topic
          * @param topic given topic
@@ -54,6 +56,7 @@ namespace KawaiiMQ {
 
     private:
         std::mutex mtx;
+        std::string name;
         std::vector<Topic> subscribed;
     };
 

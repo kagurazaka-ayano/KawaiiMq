@@ -36,4 +36,8 @@ namespace KawaiiMQ {
         }
         subscribed.erase(std::remove(subscribed.begin(), subscribed.end(), topic));
     }
+
+    Producer::Producer(const std::string &name) {
+        this->name = name;
+    }
 }
