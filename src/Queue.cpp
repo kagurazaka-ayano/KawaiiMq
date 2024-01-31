@@ -93,4 +93,8 @@ namespace KawaiiMQ {
         return ret;
     }
 
+    std::string Queue::getName() const {
+        return name;
+    }
+
 }

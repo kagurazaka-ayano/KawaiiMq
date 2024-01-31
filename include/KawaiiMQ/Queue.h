@@ -95,6 +95,8 @@ namespace KawaiiMQ {
 
         std::condition_variable_any& getSafeCond() noexcept;
 
+        std::string getName() const;
+
     private:
         static std::shared_mutex mtx;
         std::queue<std::shared_ptr<MessageData>> queue;
