@@ -142,6 +142,13 @@ namespace KawaiiMQ {
         cond.notify_one();
     }
 
+    std::shared_ptr<Queue> makeQueue(const std::string& name);
+
+    std::shared_ptr<Queue> makeQueue(std::string&& name);
+
+    std::shared_ptr<Queue> makeQueue(const Queue& other);
+
+    std::shared_ptr<Queue> makeQueue(Queue&& other);
 }
 
 

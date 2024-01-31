@@ -9,7 +9,7 @@
 
 namespace KawaiiMQ {
 
-    Consumer::Consumer(std::vector<Topic> topics) : subscribed(std::move(topics)) {
+    Consumer::Consumer(const std::vector<Topic> &topics) : subscribed(std::move(topics)) {
 
     }
 
@@ -44,7 +44,7 @@ namespace KawaiiMQ {
         for(const auto& i : subscribed) {
             auto queue = manager->getAllRelatedQueue(i);
             for(auto& j : queue) {
-                auto message = j.get().wait();
+                auto message = j->wait();
                 {
                     std::cout << "fetched" << std::endl;
                     ret[i].push_back(message);
@@ -63,10 +63,10 @@ namespace KawaiiMQ {
         std::vector<std::shared_ptr<MessageData>> ret;
         auto queue = manager->getAllRelatedQueue(topic);
         for (auto &j : queue) {
-            if (j.get().empty()) {
+            if (j->empty()) {
                 throw QueueException("queue empty");
             }
-            auto message = j.get().wait();
+            auto message = j->wait();
             ret.push_back(message);
         }
         return ret;

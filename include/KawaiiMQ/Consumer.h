@@ -23,9 +23,7 @@ namespace KawaiiMQ {
      */
     class Consumer {
     public:
-        Consumer() = default;
-
-        explicit Consumer(std::vector<Topic> topics);
+        explicit Consumer(const std::vector<Topic> &topics);
 
         explicit Consumer(const std::string& name);
 

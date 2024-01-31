@@ -97,5 +97,20 @@ namespace KawaiiMQ {
         return name;
     }
 
+    std::shared_ptr<Queue> makeQueue(const std::string& name) {
+        return std::make_shared<Queue>(name);
+    }
+
+    std::shared_ptr<Queue> makeQueue(std::string&& name) {
+        return std::make_shared<Queue>(std::move(name));
+    }
+
+    std::shared_ptr<Queue> makeQueue(const Queue& other) {
+        return std::make_shared<Queue>(other);
+    }
+
+    std::shared_ptr<Queue> makeQueue(Queue&& other) {
+        return std::make_shared<Queue>(std::move(other));
+    }
 
 }

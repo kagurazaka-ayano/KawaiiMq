@@ -39,7 +39,7 @@ namespace KawaiiMQ {
          * @param queue queue you want to relate
          * @exception TopicException if the topic is already related to the queue
          */
-        void relate(const Topic& topic, Queue &queue);
+        void relate(const Topic& topic, std::shared_ptr<Queue> queue);
 
         /**
          * unrelate a queue from a topic
@@ -48,7 +48,7 @@ namespace KawaiiMQ {
          * @exception TopicException if the topic is not related to the queue
          * @remark this function will wait until the queue is empty
          */
-        void unrelate(const Topic& topic, Queue& queue);
+        void unrelate(const Topic& topic, std::shared_ptr<Queue> queue);
 
         /**
          * get all queues related to the topic
@@ -56,7 +56,7 @@ namespace KawaiiMQ {
          * @return all queues related to the topic
          * @exception TopicException if the topic is not related to any queue
          */
-        std::vector<std::reference_wrapper<Queue>> getAllRelatedQueue(const Topic& topic) const;
+        std::vector<std::shared_ptr<Queue>> getAllRelatedQueue(const Topic& topic) const;
 
         /**
          * get all topics that related to a queue
@@ -70,7 +70,7 @@ namespace KawaiiMQ {
          * @param queue queue given
          * @return true if related, false otherwise
          */
-        bool isRelated(const Topic& topic, const Queue& queue);
+        bool isRelated(const Topic& topic, std::shared_ptr<Queue> queue);
 
         /**
          * check if a topic is related to any queue
@@ -91,7 +91,7 @@ namespace KawaiiMQ {
     private:
         MessageQueueManager() = default;
         mutable std::shared_mutex mtx;
-        std::unordered_map<Topic, std::vector<std::reference_wrapper<Queue>>> topic_map;
+        std::unordered_map<Topic, std::vector<std::shared_ptr<Queue>>> topic_map;
         std::unordered_map<std::string, Topic> related_topic;
     };
 }

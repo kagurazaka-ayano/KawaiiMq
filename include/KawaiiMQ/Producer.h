@@ -19,6 +19,8 @@ namespace KawaiiMQ {
     public:
         explicit Producer(const std::string &name);
 
+        explicit Producer(std::vector<Topic> topics, const std::string &name);
+
         /**
          * subscribe to a topic
          * @param topic topic you want to subscribe
@@ -48,7 +50,7 @@ namespace KawaiiMQ {
             auto manager = MessageQueueManager::Instance();
             auto queues = manager->getAllRelatedQueue(topic);
             for(auto& queue : queues) {
-                queue.get().push(std::move(message));
+                queue->push(std::move(message));
             }
         }
 
@@ -67,7 +69,7 @@ namespace KawaiiMQ {
                 auto queues = manager->getAllRelatedQueue(topic);
                 for(auto& queue : queues) {
                     std::cout << "pushed message" << std::endl;
-                    queue.get().push(std::move(message));
+                    queue->push(std::move(message));
                 }
             }
         }

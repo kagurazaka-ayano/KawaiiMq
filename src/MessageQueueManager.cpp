@@ -13,39 +13,48 @@ namespace KawaiiMQ {
         return instance;
     }
 
-    void MessageQueueManager::relate(const Topic &topic, Queue &queue) {
+    void MessageQueueManager::relate(const Topic &topic, std::shared_ptr<Queue> queue) {
         std::lock_guard lock(mtx);
-        auto& queues = topic_map[topic];
-        if (std::find_if(queues.begin(), queues.end(), [&queue](const Queue& q) {
-            return &q == &queue;
-        }) == queues.end()) {
-            related_topic.try_emplace(topic.getName(), topic);
-            topic_map[topic].push_back(std::ref(queue));
+        bool find = false;
+        for (const auto& q : topic_map[topic]) {
+            if (q->getName() == queue->getName()) {
+                find = true;
+                break;
+            }
+        }
+        if (!find) {
+            topic_map[topic].push_back(queue);
         } else {
             throw QueueException("Attempted to relate duplicated queue in same topic: " + topic.getName());
         }
     }
 
 
-    void MessageQueueManager::unrelate(const Topic &topic, Queue &queue) {
+    void MessageQueueManager::unrelate(const Topic &topic, std::shared_ptr<Queue> queue) {
         std::unique_lock lock(mtx);
-        queue.getSafeCond().wait_for(lock, std::chrono::milliseconds(queue.getSafeTimeout()), [&queue](){return !queue.empty();});
-        if (std::find_if(topic_map[topic].begin(), topic_map[topic].end(), [&queue](const Queue& q) {
-            return &q == &queue;
-        }) != topic_map[topic].end()) {
-            topic_map[topic].erase(std::remove_if(topic_map[topic].begin(), topic_map[topic].end(), [&queue](const Queue& q) {
-                return &q == &queue;
-            }), topic_map[topic].end());
-            if (topic_map[topic].empty()) {
-                related_topic.erase(topic.getName());
+        queue->getSafeCond().wait_for(lock, std::chrono::milliseconds(queue->getSafeTimeout()), [&queue](){return !queue->empty();});
+        bool find = false;
+        for (const auto& q : topic_map[topic]) {
+            if (q->getName() == queue->getName()) {
+                find = true;
+                break;
             }
         }
-        else {
+        if (find) {
+            auto &queues = topic_map[topic];
+            auto it = std::find_if(
+                    queues.begin(), queues.end(),
+                    [&queue](const std::shared_ptr<Queue> &q) {
+                        return queue->getName() == q->getName();
+                    });
+            queues.erase(it);
+        }
+        else{
             throw QueueException("Attempted to unrelate nonexistent queue from topic: " + topic.getName());
         }
     }
 
-    std::vector<std::reference_wrapper<Queue>> MessageQueueManager::getAllRelatedQueue(const Topic& topic) const {
+    std::vector<std::shared_ptr<Queue>> MessageQueueManager::getAllRelatedQueue(const Topic& topic) const {
         std::shared_lock lock(mtx);
         try {
             return topic_map.at(topic);
@@ -56,10 +65,12 @@ namespace KawaiiMQ {
 
     }
 
-    bool MessageQueueManager::isRelated(const Topic& topic, const Queue& queue) {
+    bool MessageQueueManager::isRelated(const Topic& topic, std::shared_ptr<Queue> queue) {
         std::shared_lock lock(mtx);
         auto& queues = topic_map[topic];
-        return std::find_if(queues.begin(), queues.end(), [&queue](const Queue& q){return &q == &queue;}) != queues.end();
+        return std::find_if(queues.begin(), queues.end(), [&queue](const std::shared_ptr<Queue>& q) {
+            return q->getName() == queue->getName();
+        }) != queues.end();
     }
 
     std::vector<Topic> MessageQueueManager::getRelatedTopic() const {

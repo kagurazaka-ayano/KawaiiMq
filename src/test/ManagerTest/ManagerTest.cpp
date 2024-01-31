@@ -26,7 +26,7 @@ namespace KawaiiMQ{
 
     TEST_F(MessageQueueManagerTest, RelateAndUnrelate) {
         Topic topic("testTopic");
-        Queue queue("testQueue");
+        auto queue = std::make_shared<Queue>("testQueue");
         auto instance = MessageQueueManager::Instance();
         instance->relate(topic, queue);
         ASSERT_TRUE(instance->isRelated(topic, queue));
@@ -38,7 +38,7 @@ namespace KawaiiMQ{
         auto instance = MessageQueueManager::Instance();
         for (int i = 0; i < 10000; ++i) {
             Topic topic("testTopic" + std::to_string(i));
-            Queue queue("testQueue" + std::to_string(i));
+            auto queue = makeQueue("testQueue" + std::to_string(i));
             instance->relate(topic, queue);
             ASSERT_TRUE(instance->isRelated(topic, queue));
         }
@@ -50,7 +50,7 @@ namespace KawaiiMQ{
         for (int i = 0; i < 10; ++i) {
             threads.emplace_back([=]() {
                 Topic topic("testTopic" + std::to_string(i));
-                Queue queue("testQueue" + std::to_string(i));
+                auto queue = makeQueue("testQueue" + std::to_string(i));
                 instance->relate(topic, queue);
                 ASSERT_TRUE(instance->isRelated(topic, queue));
                 instance->unrelate(topic, queue);
@@ -68,7 +68,7 @@ namespace KawaiiMQ{
         for (int i = 0; i < 12; ++i) {
             threads.emplace_back([=]() {
                 Topic topic("testTopic" + std::to_string(i));
-                Queue queue("testQueue" + std::to_string(i));
+                auto queue = makeQueue("testQueue" + std::to_string(i));
                 instance->relate(topic, queue);
                 ASSERT_TRUE(instance->isRelated(topic, queue));
                 instance->unrelate(topic, queue);

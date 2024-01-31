@@ -19,25 +19,25 @@ namespace KawaiiMQ {
 
     TEST_F(ProducerTest, SendAndReceive) {
         Topic topic("testTopic");
-        Queue queue("testQueue");
+        auto queue = makeQueue("testQueue");
         auto m = makeMessage(0);
         MessageQueueManager::Instance()->relate(topic, queue);
-        Producer producer;
+        Producer producer("prod");
         producer.subscribe(topic);
-        Consumer consumer;
+        Consumer consumer("cons");
         consumer.subscribe(topic);
         producer.publishMessage(topic, m);
-        ASSERT_EQ(queue.size(), 1);
+        ASSERT_EQ(queue->size(), 1);
         auto message = consumer.fetchSingleTopic(topic);
         ASSERT_EQ(message[0], m);
     }
 
     TEST_F(ProducerTest, SubscribeAndUnsubscribe) {
         Topic topic("testTopic");
-        Queue q;
+        auto q = makeQueue("queue");
         MessageQueueManager::Instance()->relate(topic, q);
-        Producer producer;
-        Consumer consumer;
+        Producer producer("prod");
+        Consumer consumer("cons");
         producer.subscribe(topic);
         consumer.subscribe(topic);
         EXPECT_THROW(producer.subscribe(topic), TopicException);
@@ -49,11 +49,11 @@ namespace KawaiiMQ {
     }
 
     TEST_F(ProducerTest, ConcurrentProducerConsumer) {
-        Queue queue("test");
+        auto q = makeQueue("queue");
         Topic topic("test");
-        MessageQueueManager::Instance()->relate(topic, queue);
-        Producer producer;
-        Consumer consumer;
+        MessageQueueManager::Instance()->relate(topic, q);
+        Producer producer("prod");
+        Consumer consumer("cons");
         producer.subscribe(topic);
         consumer.subscribe(topic);
         std::thread t1([&]() { producer.broadcastMessage(makeMessage(1));});
@@ -62,30 +62,30 @@ namespace KawaiiMQ {
         t1.join();
         t2.join();
 
-        ASSERT_EQ(queue.size(), 0);
+        ASSERT_EQ(q->size(), 0);
     }
 
 
     TEST_F(ProducerTest, MultipleQueuesSingleProducerMultipleConsumers) {
         Topic topic("testTopic");
-        Queue queue1("testQueue1");
-        Queue queue2("testQueue2");
-        Queue queue3("testQueue3");
+        auto queue1 = makeQueue("testQueue1");
+        auto queue2 = makeQueue("testQueue2");
+        auto queue3 = makeQueue("testQueue3");
 
         MessageQueueManager::Instance()->relate(topic, queue1);
         MessageQueueManager::Instance()->relate(topic, queue2);
         MessageQueueManager::Instance()->relate(topic, queue3);
 
-        Producer producer;
+        Producer producer("prod");
         producer.subscribe(topic);
 
-        Consumer consumer1;
+        Consumer consumer1("cons1");
         consumer1.subscribe(topic);
 
-        Consumer consumer2;
+        Consumer consumer2("cons2");
         consumer2.subscribe(topic);
 
-        Consumer consumer3;
+        Consumer consumer3("cons3");
         consumer3.subscribe(topic);
 
         std::thread t1([&]() {
@@ -103,8 +103,8 @@ namespace KawaiiMQ {
         t3.join();
         t4.join();
 
-        ASSERT_EQ(queue1.size(), 0);
-        ASSERT_EQ(queue2.size(), 0);
-        ASSERT_EQ(queue3.size(), 0);
+        ASSERT_EQ(queue1->size(), 0);
+        ASSERT_EQ(queue2->size(), 0);
+        ASSERT_EQ(queue3->size(), 0);
     }
 }
