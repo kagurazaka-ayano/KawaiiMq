@@ -26,7 +26,6 @@ namespace KawaiiMQ {
      * @tparam T type of message content
      */
     template<typename T>
-    requires std::is_convertible_v<T, std::byte> || std::is_fundamental_v<T>
     class Message : public MessageData {
     public:
         explicit Message(T content) : content(std::move(content)) {}
@@ -54,7 +53,6 @@ namespace KawaiiMQ {
      * @exception TypeException Will throw if the type of the message is not the same as the type you are expecting
      */
     template<typename T>
-    requires std::is_convertible_v<T, std::byte> || std::is_fundamental_v<T>
     T getMessage(std::shared_ptr<MessageData> in) {
         std::shared_ptr<Message<T>> tmp = std::dynamic_pointer_cast<Message<T>>(in);
         if (tmp != nullptr) {
@@ -71,7 +69,6 @@ namespace KawaiiMQ {
      * @return message shared ptr
      */
     template<typename T>
-    requires std::is_convertible_v<T, std::byte> || std::is_fundamental_v<T>
     std::shared_ptr<Message<T>> makeMessage(T content) {
         auto msg = std::make_shared<Message<T>>(content);
         return msg;

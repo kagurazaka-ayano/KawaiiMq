@@ -2,7 +2,7 @@
  * @file Exceptions.h
  * @author ayano
  * @date 1/29/24
- * @brief
+ * @brief Exceptions for KawaiiMQ
 */
 
 #ifndef KAWAIIMQ_EXCEPTIONS_H
