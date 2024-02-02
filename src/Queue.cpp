@@ -9,8 +9,6 @@
 
 namespace KawaiiMQ {
 
-    std::shared_mutex Queue::mtx;
-
     Queue::Queue(std::string name) : name(std::move(name)) {
 
     }
