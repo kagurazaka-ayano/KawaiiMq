@@ -38,6 +38,14 @@ namespace KawaiiMQ {
             this->content = std::move(content);
         }
 
+        /**
+         * get content of the message
+         * @return content of the message
+         */
+        T getContent() const {
+            return content;
+        }
+
         template<typename U>
         friend U getMessage(std::shared_ptr<MessageData> in);
 

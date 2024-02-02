@@ -17,7 +17,7 @@ namespace KawaiiMQ{
 
     /**
      * A concept that checks if a type is a message
-     * @tparam C
+     * @tparam C any type
      */
     template <class C>
     concept MessageType = requires(C c) {
