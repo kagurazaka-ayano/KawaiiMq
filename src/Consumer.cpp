@@ -46,12 +46,10 @@ namespace KawaiiMQ {
             for(auto& j : queue) {
                 auto message = j->wait();
                 {
-                    std::cout << "fetched" << std::endl;
                     ret[i].push_back(message);
                 }
             }
         }
-        std::cout << "fetcher ok" << std::endl;
         return ret;
     }
 
