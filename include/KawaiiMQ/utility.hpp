@@ -9,8 +9,6 @@
 #ifndef KAWAIIMQ_UTILITY_H
 #define KAWAIIMQ_UTILITY_H
 
-#include <type_traits>
-#include <chrono>
 #include "Message.h"
 
 namespace KawaiiMQ{

@@ -119,7 +119,7 @@ namespace KawaiiMQ {
 
 
     private:
-        std::shared_mutex mtx;
+        mutable std::shared_mutex mtx;
         std::queue<std::shared_ptr<MessageData>> queue;
         mutable std::condition_variable_any cond;
         std::string name;

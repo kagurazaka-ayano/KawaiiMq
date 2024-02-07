@@ -15,10 +15,12 @@ namespace KawaiiMQ {
 
 
     std::size_t Queue::size() const noexcept {
+        mtxshared lock(mtx);
         return queue.size();
     }
 
     bool Queue::empty() const noexcept {
+        mtxshared lock(mtx);
         return queue.empty();
     }
 
@@ -45,6 +47,7 @@ namespace KawaiiMQ {
     }
 
     Queue &Queue::operator=(Queue &&other) noexcept {
+        mtxsharedguard lock(mtx);
         if(this != &other) {
             name = std::move(other.name);
             queue = std::move(other.queue);
@@ -53,22 +56,27 @@ namespace KawaiiMQ {
     }
 
     void Queue::setTimeout(int timeout_ms) noexcept {
+        mtxsharedguard lock(mtx);
         this->timeout_ms = timeout_ms;
     }
 
     int Queue::getTimeout() const noexcept {
+        mtxshared lock(mtx);
         return timeout_ms;
     }
 
     void Queue::setSafeTimeout(int timeout_ms) noexcept {
+        mtxsharedguard lock(mtx);
         this->safe_timeout_ms = timeout_ms;
     }
 
     int Queue::getSafeTimeout() const noexcept {
+        mtxshared lock(mtx);
         return safe_timeout_ms;
     }
 
     std::condition_variable_any &Queue::getSafeCond() noexcept {
+        mtxshared lock(mtx);
         return safe_cond;
     }
 
@@ -92,6 +100,7 @@ namespace KawaiiMQ {
     }
 
     std::string Queue::getName() const {
+        mtxshared lock(mtx);
         return name;
     }
 
