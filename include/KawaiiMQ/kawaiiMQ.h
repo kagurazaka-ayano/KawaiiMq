@@ -13,6 +13,5 @@
 #include "MessageQueueManager.h"
 #include "Queue.h"
 #include "Topic.h"
-#include "utility.hpp"
 
 #endif // KAWAIIMQ_KAWAIIMQ_H

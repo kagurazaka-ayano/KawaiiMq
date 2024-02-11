@@ -11,7 +11,6 @@
 #include "Topic.h"
 #include "Message.h"
 #include "MessageQueueManager.h"
-#include "utility.hpp"
 
 namespace KawaiiMQ {
 
@@ -42,7 +41,7 @@ namespace KawaiiMQ {
          * @param message message you want to publish
          * @exception TopicException Will throw if the topic is not subscribed
          */
-        template<MessageType T>
+        template<typename T>
         void publishMessage(const Topic& topic, std::shared_ptr<T> message) {
             if (std::find(subscribed.begin(), subscribed.end(), topic) == subscribed.end()) {
                 throw TopicException("topic not subscribed");
@@ -59,7 +58,7 @@ namespace KawaiiMQ {
          * @param message message you want to broadcast
          * @exception TopicException Will throw if no topic is subscribed
          */
-        template<MessageType T>
+        template<typename T>
         void broadcastMessage(std::shared_ptr<T> message) {
             auto manager = MessageQueueManager::Instance();
             if (subscribed.empty()) {

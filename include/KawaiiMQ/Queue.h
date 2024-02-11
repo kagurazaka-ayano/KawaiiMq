@@ -15,7 +15,6 @@
 #include <utility>
 #include <limits>
 #include "Message.h"
-#include "utility.hpp"
 #include "Exceptions.h"
 /**
  * KawaiiMQ namespace
@@ -57,7 +56,7 @@ namespace KawaiiMQ {
          * @param msg message pushing in
          * @tparam T message content type
          */
-        template<MessageType T>
+        template<typename T>
         void push(const std::shared_ptr<T>& msg);
 
         /**
@@ -65,7 +64,7 @@ namespace KawaiiMQ {
          * @param msg message pushing in
          * @tparam T message content type
          */
-        template<MessageType T>
+        template<typename T>
         void push(std::shared_ptr<T>&& msg) noexcept;
 
         /**
@@ -124,18 +123,18 @@ namespace KawaiiMQ {
         mutable std::condition_variable_any cond;
         std::string name;
         int timeout_ms = 0;
-        int safe_timeout_ms = 5000;
+        int safe_timeout_ms = 100;
         mutable std::condition_variable_any safe_cond;
     };
 
-    template<MessageType T>
+    template<typename T>
     void Queue::push(const std::shared_ptr<T>& msg) {
         mtxsharedguard lock(mtx);
         queue.push(msg);
         cond.notify_one();
     }
 
-    template<MessageType T>
+    template<typename T>
     void Queue::push(std::shared_ptr<T> &&msg) noexcept {
         mtxsharedguard lock(mtx);
         queue.push(msg);

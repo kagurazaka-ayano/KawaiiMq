@@ -13,7 +13,6 @@
 #include <algorithm>
 #include "Topic.h"
 #include "Message.h"
-#include "utility.hpp"
 #include "MessageQueueManager.h"
 
 namespace KawaiiMQ {

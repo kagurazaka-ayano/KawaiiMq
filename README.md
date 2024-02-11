@@ -23,8 +23,6 @@ ctest
 ```
 in build directory
 
-> Some tests are testing for timeout, which could take a long time to run, wait at least 20 seconds for each test.
-
 to build documentation, run 
 ```bash
 ./scripts/makeDoc.sh
