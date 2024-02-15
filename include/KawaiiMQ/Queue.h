@@ -50,6 +50,12 @@ namespace KawaiiMQ {
          */
         std::shared_ptr<MessageData> wait();
 
+        /**
+         * Try to wait for the result when called. If the queue is empty, return false.
+         * @param msg reference of a std::shared_ptr containing message
+         * @return true of can fetch a message, false if the queue is empty
+         */
+        bool tryWait(std::shared_ptr<MessageData>& msg);
 
         /**
          * Push a message to the queue

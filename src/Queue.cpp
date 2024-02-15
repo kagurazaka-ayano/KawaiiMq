@@ -99,6 +99,28 @@ namespace KawaiiMQ {
         return ret;
     }
 
+    bool Queue::tryWait(std::shared_ptr<MessageData>& msg) {
+        std::unique_lock lock(mtx);
+        if(queue.empty()) {
+            return false;
+        }
+        if (timeout_ms == 0) {
+            cond.wait(lock, [this](){return !queue.empty();});
+        }
+        else {
+            cond.wait_for(lock, std::chrono::milliseconds(timeout_ms), [this](){return !queue.empty();});
+            if(queue.empty()) {
+                throw QueueException("queue fetch timeout");
+            }
+        }
+        msg = queue.front();
+        queue.pop();
+        if (queue.empty()) {
+            safe_cond.notify_all();
+        }
+        return true;
+    }
+
     std::string Queue::getName() const {
         mtxshared lock(mtx);
         return name;
