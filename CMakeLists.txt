@@ -4,16 +4,7 @@ include(CTest)
 include(FetchContent)
 set(CMAKE_CXX_STANDARD 23)
 
-FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG        v1.14.0
-)
-FetchContent_MakeAvailable(googletest)
 
-if (${TEST}=ON)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTEST")
-endif()
 
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -32,6 +23,13 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/KawaiiMQ-src.zip
         DEPENDS ${PACKAGE_FILES})
 add_custom_target(KawaiiMQ_package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/KawaiiMQ-src.zip)
 
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        v1.14.0
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(googletest)
 
 include(GoogleTest)
 enable_testing()
