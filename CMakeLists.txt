@@ -4,14 +4,12 @@ include(CTest)
 include(FetchContent)
 set(CMAKE_CXX_STANDARD 23)
 
-
-
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-
+set(KawaiiMQ_BUILD_TESTS OFF CACHE BOOL "Build tests for KawaiiMQ")
 file(GLOB SRC "./src/*.cpp")
 set(INCLUDE "./include/KawaiiMQ")
 include_directories(${INCLUDE})
@@ -23,42 +21,44 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/KawaiiMQ-src.zip
         DEPENDS ${PACKAGE_FILES})
 add_custom_target(KawaiiMQ_package DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/KawaiiMQ-src.zip)
 
-FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG        v1.14.0
-        EXCLUDE_FROM_ALL
-)
-FetchContent_GetProperties(googletest)
-if(NOT googletest_POPULATED)
-    FetchContent_Populate(googletest)
-    add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
-endif()
 
-include(GoogleTest)
-enable_testing()
-file(GLOB OperatorTest "./src/test/OperatorTest/*.cpp")
-add_executable(OperatorTest ${OperatorTest} ${SRC})
-target_include_directories(OperatorTest PRIVATE ${googletest_SOURCE_DIR}/include/gtest)
-target_link_libraries(OperatorTest PRIVATE gtest_main gmock_main)
-add_test(NAME OperatorTest COMMAND OperatorTest)
-gtest_discover_tests(OperatorTest)
-target_compile_definitions(OperatorTest PRIVATE -DTEST)
+if(KawaiiMQ_BUILD_TESTS)
+    FetchContent_Declare(
+            googletest
+            GIT_REPOSITORY https://github.com/google/googletest.git
+            GIT_TAG        v1.14.0
+            EXCLUDE_FROM_ALL
+    )
+    FetchContent_GetProperties(googletest)
+    if(NOT googletest_POPULATED)
+        FetchContent_Populate(googletest)
+        add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+    endif()
+    include(GoogleTest)
+    enable_testing()
+    file(GLOB OperatorTest "./src/test/OperatorTest/*.cpp")
+    add_executable(OperatorTest ${OperatorTest} ${SRC})
+    target_include_directories(OperatorTest PRIVATE ${googletest_SOURCE_DIR}/include/gtest)
+    target_link_libraries(OperatorTest PRIVATE gtest_main gmock_main)
+    add_test(NAME OperatorTest COMMAND OperatorTest)
+    gtest_discover_tests(OperatorTest)
+    target_compile_definitions(OperatorTest PRIVATE -DTEST)
 
-file(GLOB QueueTest "./src/test/QueueTest/*.cpp")
-add_executable(QueueTest ${QueueTest} ${SRC})
-target_include_directories(QueueTest PRIVATE ${googletest_SOURCE_DIR}/include/gtest)
-target_link_libraries(QueueTest PRIVATE gtest_main gmock_main)
-add_test(NAME QueueTest COMMAND QueueTest)
-gtest_discover_tests(QueueTest)
-target_compile_definitions(QueueTest PRIVATE -DTEST)
+    file(GLOB QueueTest "./src/test/QueueTest/*.cpp")
+    add_executable(QueueTest ${QueueTest} ${SRC})
+    target_include_directories(QueueTest PRIVATE ${googletest_SOURCE_DIR}/include/gtest)
+    target_link_libraries(QueueTest PRIVATE gtest_main gmock_main)
+    add_test(NAME QueueTest COMMAND QueueTest)
+    gtest_discover_tests(QueueTest)
+    target_compile_definitions(QueueTest PRIVATE -DTEST)
 
-file(GLOB ManagerTest "./src/test/ManagerTest/*.cpp")
-add_executable(ManagerTest ${ManagerTest} ${SRC})
-target_include_directories(ManagerTest PRIVATE ${googletest_SOURCE_DIR}/include/gtest)
-target_link_libraries(ManagerTest PRIVATE gtest_main gmock_main)
-add_test(NAME ManagerTest COMMAND ManagerTest)
-gtest_discover_tests(ManagerTest)
-target_compile_definitions(ManagerTest PRIVATE -DTEST)
+    file(GLOB ManagerTest "./src/test/ManagerTest/*.cpp")
+    add_executable(ManagerTest ${ManagerTest} ${SRC})
+    target_include_directories(ManagerTest PRIVATE ${googletest_SOURCE_DIR}/include/gtest)
+    target_link_libraries(ManagerTest PRIVATE gtest_main gmock_main)
+    add_test(NAME ManagerTest COMMAND ManagerTest)
+    gtest_discover_tests(ManagerTest)
+    target_compile_definitions(ManagerTest PRIVATE -DTEST)
+endif ()
 
 

@@ -13,11 +13,12 @@ to build static library, run following command:
 mkdir build
 cd build
 cmake -S .. -B .
-cmake --build . --target KawaiiMQ
+cmake --build .
 ```
 
 to run test, run
 ```bash
+cmake . -DKawaiiMQ_BUILD_TESTS=ON
 cmake --build .
 ctest
 ```
