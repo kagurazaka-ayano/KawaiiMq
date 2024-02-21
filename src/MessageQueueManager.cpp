@@ -15,18 +15,13 @@ namespace KawaiiMQ {
 
     void MessageQueueManager::relate(const Topic &topic, std::shared_ptr<Queue> queue) {
         std::lock_guard lock(mtx);
-        bool find = false;
         for (const auto& q : topic_map[topic]) {
             if (q->getName() == queue->getName()) {
-                find = true;
-                break;
+                return;
             }
         }
-        if (!find) {
-            topic_map[topic].push_back(queue);
-        } else {
-            throw QueueException("Attempted to relate duplicated queue in same topic: " + topic.getName());
-        }
+        topic_map[topic].push_back(queue);
+
     }
 
 
@@ -36,21 +31,14 @@ namespace KawaiiMQ {
         bool find = false;
         for (const auto& q : topic_map[topic]) {
             if (q->getName() == queue->getName()) {
-                find = true;
-                break;
+                auto &queues = topic_map[topic];
+                auto it = std::find_if(
+                        queues.begin(), queues.end(),
+                        [&queue](const std::shared_ptr<Queue> &q) {
+                            return queue->getName() == q->getName();
+                        });
+                queues.erase(it);
             }
-        }
-        if (find) {
-            auto &queues = topic_map[topic];
-            auto it = std::find_if(
-                    queues.begin(), queues.end(),
-                    [&queue](const std::shared_ptr<Queue> &q) {
-                        return queue->getName() == q->getName();
-                    });
-            queues.erase(it);
-        }
-        else{
-            throw QueueException("Attempted to unrelate nonexistent queue from topic: " + topic.getName());
         }
     }
 
@@ -60,9 +48,9 @@ namespace KawaiiMQ {
             return topic_map.at(topic);
         }
         catch (std::out_of_range& e) {
-            throw TopicException("Topic " + topic.getName() + " is not related to any queue");
+            std::cerr << "Topic " + topic.getName() + " is not related to any queue";
+            return std::vector<std::shared_ptr<Queue>>();
         }
-
     }
 
     bool MessageQueueManager::isRelated(const Topic& topic, std::shared_ptr<Queue> queue) {

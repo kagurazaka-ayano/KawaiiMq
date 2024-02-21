@@ -37,7 +37,6 @@ namespace KawaiiMQ {
          * relate a queue to a topic
          * @param topic topic you want to relate
          * @param queue queue you want to relate
-         * @exception TopicException if the topic is already related to the queue
          */
         void relate(const Topic& topic, std::shared_ptr<Queue> queue);
 
@@ -45,7 +44,6 @@ namespace KawaiiMQ {
          * unrelate a queue from a topic
          * @param topic topic you want to unrelate
          * @param queue queue you want to unrelate
-         * @exception TopicException if the topic is not related to the queue
          * @remark this function will wait until the queue is empty
          */
         void unrelate(const Topic& topic, std::shared_ptr<Queue> queue);
@@ -54,7 +52,7 @@ namespace KawaiiMQ {
          * get all queues related to the topic
          * @param topic given topic
          * @return all queues related to the topic
-         * @exception TopicException if the topic is not related to any queue
+         * @remark this function will return a empty vector when there is nothing related to this topic
          */
         std::vector<std::shared_ptr<Queue>> getAllRelatedQueue(const Topic& topic) const;
 
