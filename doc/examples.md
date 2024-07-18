@@ -78,7 +78,7 @@ KawaiiMQ::Queue queue;
 
 ```cpp
 
-KawaiiMQ::MessageQueue queue;
+KawaiiMQ::Queue queue;
 KawaiiMQ::Topic topic("topic1");
 KawaiiMQ::MessageQueueManager::Instance()->relate(topic, queue);
 
