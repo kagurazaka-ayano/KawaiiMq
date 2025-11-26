@@ -1,17 +1,15 @@
 name: Release
 permissions:
   contents: write
-
 on:
-  release:
-    types: [published]
-
+  push:
+    branches:
+      - main
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Create build environment
         run: cmake -E make_directory build
       - name: Configure
@@ -20,7 +18,6 @@ jobs:
       - name: Package source code
         working-directory: build/
         run: cmake --build . --target KawaiiMQ_package
-
       - name: Add packaged source code to release
         uses: svenstaro/upload-release-action@v2
         with:

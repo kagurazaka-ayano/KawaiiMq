@@ -3,72 +3,72 @@
  * @author ayano
  * @date 1/25/24
  * @brief A consumer of the message queue
-*/
+ */
 
 #ifndef KAWAIIMQ_CONSUMER_H
 #define KAWAIIMQ_CONSUMER_H
 
-#include <vector>
-#include <iostream>
-#include <algorithm>
-#include "Topic.h"
 #include "Message.h"
 #include "MessageQueueManager.h"
+#include "Topic.h"
+#include <algorithm>
+#include <iostream>
+#include <vector>
 
 namespace KawaiiMQ {
+/**
+ * The client of the message queue
+ * @remark A client is a user of the message queue system. It can subscribe to multiple topics and fetch messages from topics.
+ */
+class Consumer {
+public:
+    explicit Consumer(const std::vector<Topic>& topics);
+
+    explicit Consumer(const std::string& name);
+
     /**
-     * The client of the message queue
-     * @remark A client is a user of the message queue system. It can subscribe to multiple topics and fetch messages from topics.
+     * subscribe a topic
+     * @param topic given topic
      */
-    class Consumer {
-    public:
-        explicit Consumer(const std::vector<Topic> &topics);
+    void subscribe(const Topic& topic);
 
-        explicit Consumer(const std::string& name);
+    /**
+     * unsubscribe a topic
+     * @param topic given topic
+     */
+    void unsubscribe(const Topic& topic);
 
-        /**
-         * subscribe a topic
-         * @param topic given topic
-         */
-        void subscribe(const Topic &topic);
+    /**
+     * fetch all messages from subscribed topics
+     * @return all messages from subscribed topics
+     */
+    std::unordered_map<Topic, std::vector<std::shared_ptr<MessageData>>> fetchMessage();
 
-        /**
-         * unsubscribe a topic
-         * @param topic given topic
-         */
-        void unsubscribe(const Topic& topic);
+    /**
+     * fetch all messages from a single topic
+     * @param topic given topic
+     * @return all messages from the topic
+     */
+    std::vector<std::shared_ptr<MessageData>> fetchSingleTopic(const Topic& topic);
 
-        /**
-         * fetch all messages from subscribed topics
-         * @return all messages from subscribed topics
-         */
-        std::unordered_map<Topic, std::vector<std::shared_ptr<MessageData>>> fetchMessage();
+    /**
+     * get the name of the consumer
+     * @return name of the consumer
+     */
+    std::string getName() const;
 
-        /**
-         * fetch all messages from a single topic
-         * @param topic given topic
-         * @return all messages from the topic
-         */
-        std::vector<std::shared_ptr<MessageData>> fetchSingleTopic(const Topic& topic);
+    /**
+     * get all subscribed topics
+     * @return all subscribed topic, in a vector
+     */
+    std::vector<Topic> getSubscribedTopics() const;
 
-        /**
-         * get the name of the consumer
-         * @return name of the consumer
-         */
-        std::string getName() const;
-
-        /**
-         * get all subscribed topics
-         * @return all subscribed topic, in a vector
-         */
-        std::vector<Topic> getSubscribedTopics() const;
-
-    private:
-        std::mutex mtx;
-        std::string name;
-        std::vector<Topic> subscribed;
-    };
+private:
+    std::mutex mtx;
+    std::string name;
+    std::vector<Topic> subscribed;
+};
 
 } // KawaiiMQ
 
-#endif //KAWAIIMQ_CONSUMER_H
+#endif // KAWAIIMQ_CONSUMER_H
